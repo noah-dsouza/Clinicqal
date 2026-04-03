@@ -626,6 +626,7 @@ function TrialMatchCard({ trial, expanded, onToggle }: { trial: TrialMatch; expa
         </div>
       </div>
     </div>
+    </TiltCard>
   );
 }
 
@@ -633,15 +634,13 @@ function TrialMatchCard({ trial, expanded, onToggle }: { trial: TrialMatch; expa
 
 function ProviderMatchCard({ provider, expanded, onToggle }: { provider: ProviderMatch; expanded: boolean; onToggle: () => void }) {
   return (
-    <div
-      className="rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden"
-      style={{
-        background: expanded ? "#1a2744" : "#1E293B",
-        borderColor: expanded ? "rgba(20,184,166,0.4)" : "rgba(255,255,255,0.07)",
-        boxShadow: expanded ? "0 0 24px rgba(20,184,166,0.1)" : "none",
-      }}
-      onClick={onToggle}
+    <TiltCard
+      active={expanded}
+      borderColor={expanded ? "rgba(20,184,166,0.4)" : "rgba(255,255,255,0.07)"}
+      bg={expanded ? "#1a2744" : "#1E293B"}
+      shadow={expanded ? "0 0 24px rgba(20,184,166,0.1)" : undefined}
     >
+    <div className="cursor-pointer" onClick={onToggle}>
       {/* Summary row */}
       <div className="p-4 flex items-start gap-3">
         <div
