@@ -11,41 +11,21 @@ interface VitalSignCardProps {
 
 type VitalStatus = "normal" | "abnormal" | "critical" | "unknown";
 
-function getStatus(
-  value: number | string | undefined,
-  low?: number,
-  high?: number
-): VitalStatus {
+function getStatus(value: number | string | undefined, low?: number, high?: number): VitalStatus {
   if (value === undefined || value === null || value === "") return "unknown";
   const num = typeof value === "string" ? parseFloat(value) : value;
   if (isNaN(num)) return "unknown";
-  const isLow = low !== undefined && num < low;
-  const isHigh = high !== undefined && num > high;
-  if (!isLow && !isHigh) return "normal";
-  if ((low !== undefined && num < low * 0.8) || (high !== undefined && num > high * 1.3))
-    return "critical";
-  return "abnormal";
+  if (low !== undefined && num < low * 0.8) return "critical";
+  if (high !== undefined && num > high * 1.3) return "critical";
+  if ((low !== undefined && num < low) || (high !== undefined && num > high)) return "abnormal";
+  return "normal";
 }
 
 const statusColors: Record<VitalStatus, string> = {
-  normal: "#22C55E",
-  abnormal: "#F59E0B",
-  critical: "#EF4444",
-  unknown: "#9CA3AF",
-};
-
-const statusBg: Record<VitalStatus, string> = {
-  normal: "rgba(34, 197, 94, 0.06)",
-  abnormal: "rgba(245, 158, 11, 0.06)",
-  critical: "rgba(239, 68, 68, 0.06)",
-  unknown: "rgba(243, 244, 246, 0.5)",
-};
-
-const statusBorder: Record<VitalStatus, string> = {
-  normal: "rgba(34, 197, 94, 0.2)",
-  abnormal: "rgba(245, 158, 11, 0.2)",
-  critical: "rgba(239, 68, 68, 0.2)",
-  unknown: "#E5E7EB",
+  normal: "#34D399",
+  abnormal: "#FBBF24",
+  critical: "#F87171",
+  unknown: "#64748B",
 };
 
 export function VitalSignCard({ label, value, unit, normalLow, normalHigh, icon }: VitalSignCardProps) {
@@ -55,60 +35,35 @@ export function VitalSignCard({ label, value, unit, normalLow, normalHigh, icon 
 
   return (
     <div
-      className="rounded-xl p-4 border transition-all duration-200"
-      style={{
-        background: statusBg[status],
-        borderColor: statusBorder[status],
-      }}
+      className="rounded-xl p-3.5 border transition-all duration-200"
+      style={{ background: `${color}09`, borderColor: `${color}22` }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide leading-tight">{label}</span>
+      <div className="flex items-start justify-between mb-2.5">
+        <span className="text-[9px] font-semibold text-[#64748B] uppercase tracking-wide leading-tight">{label}</span>
         {icon && (
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ background: `${color}15` }}
-          >
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: `${color}18` }}>
             <span style={{ color }}>{icon}</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-baseline gap-1.5">
-        <span
-          className="text-2xl font-bold"
-          style={{
-            color,
-            textShadow: status !== "unknown" ? `0 0 12px ${color}40` : "none",
-          }}
-        >
+      <div className="flex items-baseline gap-1">
+        <span className="text-xl font-bold" style={{ color, textShadow: status !== "unknown" ? `0 0 10px ${color}35` : "none" }}>
           {displayValue}
         </span>
         {value !== undefined && value !== "" && (
-          <span className="text-xs text-[#9CA3AF]">{unit}</span>
+          <span className="text-[10px] text-[#64748B]">{unit}</span>
         )}
       </div>
 
       {normalLow !== undefined && normalHigh !== undefined && (
-        <div className="mt-2 text-xs text-[#9CA3AF]">
-          Normal: {normalLow}–{normalHigh}
-        </div>
+        <p className="mt-1.5 text-[9px] text-[#64748B]">{normalLow}–{normalHigh} {unit}</p>
       )}
 
       {status !== "unknown" && (
-        <div className="mt-2 flex items-center gap-1.5">
-          <div
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              backgroundColor: color,
-              boxShadow: status === "critical" ? `0 0 6px ${color}` : "none",
-            }}
-          />
-          <span
-            className="text-xs capitalize"
-            style={{ color }}
-          >
-            {status}
-          </span>
+        <div className="mt-1.5 flex items-center gap-1">
+          <div className="w-1 h-1 rounded-full" style={{ background: color, boxShadow: status === "critical" ? `0 0 4px ${color}` : "none" }} />
+          <span className="text-[9px] capitalize" style={{ color }}>{status}</span>
         </div>
       )}
     </div>
