@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useSpring, useTransform } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { DigitalTwin } from "../../../types/digitalTwin";
 
@@ -426,6 +426,67 @@ function Tag({ label, color = "#14B8A6" }: { label: string; color?: string }) {
   );
 }
 
+// ─── 3D Tilt wrapper ────────────────────────────────────────────────────────
+
+function TiltCard({ children, active, borderColor, bg, shadow }: { children: React.ReactNode; active: boolean; borderColor: string; bg: string; shadow?: string }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const rawX = useSpring(0, { stiffness: 300, damping: 30 });
+  const rawY = useSpring(0, { stiffness: 300, damping: 30 });
+  const scale = useSpring(1, { stiffness: 300, damping: 30 });
+  const [hovered, setHovered] = useState(false);
+
+  const rotateX = useTransform(rawY, (v) => `${v}deg`);
+  const rotateY = useTransform(rawX, (v) => `${v}deg`);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (active) return; // don't tilt when expanded
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    rawX.set(((e.clientX - rect.left) / rect.width - 0.5) * 16);
+    rawY.set(((e.clientY - rect.top) / rect.height - 0.5) * -16);
+  };
+
+  const handleMouseEnter = () => { if (!active) { setHovered(true); scale.set(1.02); } };
+  const handleMouseLeave = () => { setHovered(false); rawX.set(0); rawY.set(0); scale.set(1); };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX: active ? "0deg" : rotateX,
+        rotateY: active ? "0deg" : rotateY,
+        scale: active ? 1 : scale,
+        transformStyle: "preserve-3d",
+        transformPerspective: 900,
+        borderRadius: 16,
+        border: `1px solid ${borderColor}`,
+        background: bg,
+        boxShadow: shadow ?? "none",
+        overflow: "hidden",
+        position: "relative",
+        transition: "background 0.3s, border-color 0.3s, box-shadow 0.3s",
+      }}
+    >
+      {/* gloss highlight */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.055) 0%, transparent 65%)",
+          pointerEvents: "none",
+          opacity: hovered && !active ? 1 : 0,
+          transition: "opacity 0.25s",
+          zIndex: 0,
+        }}
+      />
+      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    </motion.div>
+  );
+}
+
 // ─── Expandable Trial Card ──────────────────────────────────────────────────
 
 function TrialMatchCard({ trial, expanded, onToggle }: { trial: TrialMatch; expanded: boolean; onToggle: () => void }) {
@@ -433,15 +494,13 @@ function TrialMatchCard({ trial, expanded, onToggle }: { trial: TrialMatch; expa
   const label = scoreLabel(trial.matchScore);
 
   return (
-    <div
-      className="rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden"
-      style={{
-        background: expanded ? "#1a2744" : "#1E293B",
-        borderColor: expanded ? `${color}50` : "rgba(255,255,255,0.07)",
-        boxShadow: expanded ? `0 0 24px ${color}18` : "none",
-      }}
-      onClick={onToggle}
+    <TiltCard
+      active={expanded}
+      borderColor={expanded ? `${color}50` : "rgba(255,255,255,0.07)"}
+      bg={expanded ? "#1a2744" : "#1E293B"}
+      shadow={expanded ? `0 0 24px ${color}18` : undefined}
     >
+    <div className="cursor-pointer" onClick={onToggle}>
       {/* Summary row */}
       <div className="p-4 flex items-start gap-3">
         <ScoreRing score={trial.matchScore} />
