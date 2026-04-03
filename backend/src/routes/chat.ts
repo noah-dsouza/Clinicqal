@@ -12,9 +12,12 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
+  console.log(`[Chat] isGroqReady=${isGroqReady()}, GROQ_API_KEY=${process.env.GROQ_API_KEY ? "set(" + process.env.GROQ_API_KEY.slice(0,8) + "...)" : "MISSING"}`);
+
   if (isGroqReady()) {
     try {
       const groqReply = await groqChatReply(message, twin ?? null);
+      console.log(`[Chat] Groq reply: ${groqReply ? groqReply.slice(0, 80) : "null"}`);
       if (groqReply) {
         res.json({ reply: groqReply });
         return;
@@ -24,6 +27,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     }
   }
 
+  console.log("[Chat] Falling back to rule-based reply");
   res.json({ reply: getRuleBasedReply(message, twin ?? null) });
 });
 

@@ -466,6 +466,7 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
   const telHref =
     doctor.phone && /[\d+]/.test(doctor.phone) ? `tel:${doctor.phone.replace(/[^+\d]/g, "")}` : null;
   const emailHref = doctor.email ? `mailto:${doctor.email}` : null;
+  const websiteHref = doctor.website || null;
   return (
     <TiltCard active={false} borderColor="rgba(47,62,52,0.15)" bg="#FFFFFF">
       <div className="p-4">
@@ -494,13 +495,33 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#B1A79F" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="#B1A79F" strokeWidth="2"/></svg>
             {doctor.address}
           </p>
-          <p className="text-[10px] text-[#8B7765] flex items-center gap-1.5">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.44 2 2 0 0 1 3.55 1.25h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17" stroke="#8B7765" strokeWidth="2"/></svg>
-            {doctor.phone}
-          </p>
+          {doctor.phone && (
+            <p className="text-[10px] text-[#8B7765] flex items-center gap-1.5">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.44 2 2 0 0 1 3.55 1.25h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17" stroke="#8B7765" strokeWidth="2"/></svg>
+              {doctor.phone}
+            </p>
+          )}
+          {websiteHref && (
+            <p className="text-[10px] text-[#6B7F6A] flex items-center gap-1.5 truncate">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#6B7F6A" strokeWidth="2"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#6B7F6A" strokeWidth="2"/></svg>
+              <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="truncate hover:underline">
+                {websiteHref.replace(/^https?:\/\//, "")}
+              </a>
+            </p>
+          )}
         </div>
         <div className="mt-3 flex flex-col sm:flex-row gap-2">
-          {emailHref ? (
+          {websiteHref ? (
+            <a
+              href={websiteHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
+              style={{ background: "rgba(193,132,58,0.1)", color: "#C1843A", border: "1px solid rgba(193,132,58,0.2)" }}
+            >
+              Visit Website
+            </a>
+          ) : emailHref ? (
             <a
               href={emailHref}
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
@@ -508,14 +529,7 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
             >
               Email Clinic
             </a>
-          ) : (
-            <div
-              className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
-              style={{ background: "rgba(47,62,52,0.04)", color: "#B1A79F" }}
-            >
-              Email unavailable
-            </div>
-          )}
+          ) : null}
           {telHref ? (
             <a
               href={telHref}
