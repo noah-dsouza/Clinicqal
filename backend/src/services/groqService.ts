@@ -106,25 +106,30 @@ export async function groqDoctorFallback(
   const contextLine = contextDetails ? `Patient context: ${contextDetails}.` : "";
 
   const payload = await runStructuredPrompt<{ doctors: DoctorResult[] }>(
-    "You generate structured provider data for healthcare navigation platforms.",
-    `Create 4 local doctors treating ${condition} near ${location}. Focus on ${specialty} specialists and consider ${contextLine || "the patient's diagnosis"} when describing expertise or age considerations. Include realistic clinic names and detailed addresses. Schema:\n{
-      "doctors": [
-        {
-          "id": "string",
-          "name": "string",
-          "specialty": "string",
-          "address": "string",
-          "phone": "string",
-          "email": "string",
-          "rating": number,
-          "reviews": number,
-          "website": "string",
-          "accepting_patients": boolean,
-          "distance": "string",
-          "source": "groq_llm"
-        }
-      ]
-    }`
+    `You are a healthcare directory assistant. Generate realistic ${specialty} providers for a specific location using your knowledge of real hospitals, clinics, and medical centers in that area. Use real institution names where possible (e.g. NYU Langone, Mount Sinai, Mayo Clinic, Cleveland Clinic, Cedars-Sinai, Mass General) and real-format phone numbers and addresses for the city.`,
+    `Generate 5 ${specialty} providers who treat ${condition} near ${location}. ${contextLine}
+
+Use realistic local clinic/hospital names, real-format addresses with correct zip codes for ${location}, and real-format phone numbers. Vary accepting_patients status. Include website URLs in format like https://www.hospitalname.org.
+
+Return ONLY this JSON:
+{
+  "doctors": [
+    {
+      "id": "d1",
+      "name": "Dr. FirstName LastName, MD",
+      "specialty": "${specialty}",
+      "address": "123 Street Name, ${location} XXXXX",
+      "phone": "(XXX) XXX-XXXX",
+      "email": "appointments@clinicname.org",
+      "rating": 4.7,
+      "reviews": 234,
+      "website": "https://www.example.org",
+      "accepting_patients": true,
+      "distance": "0.8 mi",
+      "source": "groq_llm"
+    }
+  ]
+}`
   );
 
   return payload?.doctors ?? null;
@@ -255,10 +260,39 @@ Base the score precisely on the actual criteria overlap. Do not default to a rou
 
 export async function groqChatReply(message: string, twin: DigitalTwin | null): Promise<string | null> {
   if (!message.trim()) return null;
-  const payload = await runStructuredPrompt<{ reply: string }>(
-    "You are ClinIQ, a concise health copilot. Respond in JSON with { \"reply\": string }.",
-    `${twin ? `Patient context: ${JSON.stringify(twin)}\n` : ""}User question: ${message}`,
-    800
-  );
-  return payload?.reply ?? null;
+  const client = getClient();
+  if (!client) return null;
+
+  let systemPrompt = "You are ClinIQ, a friendly and knowledgeable health assistant. Answer conversationally and helpfully. Keep responses under 120 words. Always add a brief note to consult a healthcare provider for medical decisions.";
+
+  if (twin) {
+    const { intake, health_score, bmi, ecog_estimate, active_medication_names } = twin;
+    systemPrompt += `\n\nPatient profile:
+- Age: ${intake.demographics.age}, Sex: ${intake.demographics.sex}
+- Primary condition: ${intake.diagnosis.primary_condition}${intake.diagnosis.stage ? ` (${intake.diagnosis.stage})` : ""}
+- Comorbidities: ${intake.diagnosis.secondary_conditions.join(", ") || "none"}
+- Medications: ${active_medication_names.join(", ") || "none"}
+- Health score: ${health_score.overall}/100 (CV: ${health_score.cardiovascular}, Metabolic: ${health_score.metabolic}, Functional: ${health_score.functional})
+- BMI: ${bmi.toFixed(1)}, ECOG: ${ecog_estimate}
+- Labs: ${intake.labs.slice(0, 8).map((l) => `${l.name} ${l.value}${l.unit}`).join(", ") || "none"}
+
+Reference their actual data when relevant. Be honest and practical — if their health data suggests a concern, say so.`;
+  }
+
+  try {
+    const response = await client.chat.completions.create({
+      model: DEFAULT_MODEL,
+      temperature: 0.6,
+      max_tokens: 300,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message },
+      ],
+    });
+
+    return response.choices?.[0]?.message?.content?.trim() ?? null;
+  } catch (error) {
+    console.error("[Groq] chat reply failed", error);
+    return null;
+  }
 }

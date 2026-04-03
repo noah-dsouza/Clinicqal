@@ -796,7 +796,14 @@ export function FindSupport() {
                     </svg>
                   </div>
                   <p className="text-sm font-medium text-[#8B7765] mb-1">Enter your location</p>
-                  <p className="text-xs text-[#B1A79F]">We'll find {twin.intake.diagnosis.primary_condition} specialists accepting new patients near you.</p>
+                  <p className="text-xs text-[#B1A79F]">We'll find {twin.intake.diagnosis.primary_condition} specialists near you using the NPI Provider Registry.</p>
+                </motion.div>
+              )}
+
+              {!doctorsLoading && !doctorsError && doctors.length === 0 && locationSubmitted && (
+                <motion.div key="noresults" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 text-center">
+                  <p className="text-sm font-medium text-[#8B7765] mb-1">No providers found near "{locationSubmitted}"</p>
+                  <p className="text-xs text-[#B1A79F] max-w-xs mx-auto">Try a nearby major city, state abbreviation (e.g. "New York, NY"), or zip code.</p>
                 </motion.div>
               )}
             </AnimatePresence>

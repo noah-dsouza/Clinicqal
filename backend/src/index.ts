@@ -1,16 +1,10 @@
 import dotenv from "dotenv";
 import path from "path";
-// Try multiple locations so the server works regardless of launch directory
-const envPaths = [
-  path.resolve(__dirname, "../../.env"),   // backend/src → root
-  path.resolve(__dirname, "../../../.env"), // backend/dist/src → root
-  path.resolve(process.cwd(), "../.env"),  // launched from backend/
-  path.resolve(process.cwd(), ".env"),     // launched from root
-];
-for (const p of envPaths) {
-  const result = dotenv.config({ path: p });
-  if (!result.error) { console.log(`[env] Loaded ${p}`); break; }
-}
+// Backend runs from repo root (via root package.json dev:backend script)
+// __dirname = cliniq/backend/src → ../../ = cliniq root
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+// Also try cwd-relative in case of alternative launch
+dotenv.config({ path: path.resolve(process.cwd(), ".env"), override: false });
 import express from "express";
 import cors from "cors";
 
