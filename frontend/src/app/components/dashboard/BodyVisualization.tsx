@@ -1,6 +1,6 @@
 import { Suspense, useRef, useEffect, useMemo, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Center, Html } from "@react-three/drei";
+import { OrbitControls, useGLTF, Center, Html, Stars } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { BodySystem } from "../../../types/digitalTwin";
@@ -181,14 +181,20 @@ function AnatomyModel({ bodySystems, selectedSystem, onSelect }: {
     [bodySystems]
   );
 
+  // Preserve vertex colors (muscle texture) — just tune roughness/metalness
   useEffect(() => {
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#c8866a"),
-      roughness: 0.55,
-      metalness: 0.04,
-    });
     scene.traverse((obj) => {
-      if ((obj as THREE.Mesh).isMesh) (obj as THREE.Mesh).material = mat;
+      if ((obj as THREE.Mesh).isMesh) {
+        const mesh = obj as THREE.Mesh;
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        mats.forEach((m) => {
+          const mat = m as THREE.MeshStandardMaterial;
+          mat.vertexColors = true;
+          mat.roughness = 0.6;
+          mat.metalness = 0.05;
+          mat.needsUpdate = true;
+        });
+      }
     });
   }, [scene]);
 
@@ -296,7 +302,7 @@ function SystemDetailPanel({ system, onClose }: { system: BodySystem; onClose: (
 
 function Loader() {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0e1a]">
+    <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: "radial-gradient(ellipse at 50% 30%, #0d1f3c 0%, #060d1a 60%, #000508 100%)" }}>
       <div className="w-10 h-10 border-2 border-[#0D9488] border-t-transparent rounded-full animate-spin mb-3" />
       <p className="text-[#9CA3AF] text-xs">Loading anatomy model...</p>
     </div>
@@ -317,7 +323,10 @@ export function BodyVisualization({ bodySystems, onSystemClick }: BodyVisualizat
   };
 
   return (
-    <div className="bg-[#0a0e1a] rounded-xl border border-[#1E293B] overflow-hidden">
+    <div className="rounded-xl overflow-hidden" style={{
+      background: "radial-gradient(ellipse at 50% 30%, #0d1f3c 0%, #060d1a 60%, #000508 100%)",
+      border: "1px solid #0d2040",
+    }}>
       <div className="px-4 pt-4 pb-2 flex items-center justify-between">
         <h3 className="text-xs font-semibold text-[#4B5563] uppercase tracking-wider">3D Anatomy</h3>
         <div className="flex items-center gap-3">
@@ -342,8 +351,9 @@ export function BodyVisualization({ bodySystems, onSystemClick }: BodyVisualizat
           <Canvas
             camera={{ position: [0, 0.3, 2.2], fov: 50, near: 0.01, far: 100 }}
             gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.3 }}
-            style={{ background: "#0a0e1a" }}
+            style={{ background: "transparent" }}
           >
+            <Stars radius={4} depth={3} count={800} factor={0.8} saturation={0.3} fade speed={0.4} />
             <ambientLight intensity={0.65} />
             <directionalLight position={[2, 4, 3]} intensity={1.5} />
             <directionalLight position={[-2, 1, -2]} intensity={0.35} color="#7eb8d4" />
