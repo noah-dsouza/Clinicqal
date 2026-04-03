@@ -1,4 +1,8 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import path from "path";
+// Load .env from repo root regardless of where the process was launched from
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") }); // fallback for root-launched processes
 import express from "express";
 import cors from "cors";
 

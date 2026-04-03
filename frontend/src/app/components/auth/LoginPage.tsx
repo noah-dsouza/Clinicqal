@@ -164,17 +164,17 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                 initial={{ opacity: 0, y: -16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="mb-6"
+                className="mb-7"
               >
-                <LogoMark size={52} showWordmark={true} orientation="horizontal" />
+                <LogoMark size={80} showWordmark={true} orientation="horizontal" />
               </motion.div>
 
               <motion.p
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.75, duration: 0.5 }}
-                className="text-sm text-center max-w-xs leading-relaxed"
-                style={{ color: "rgba(246,243,237,0.75)" }}
+                className="text-base text-center max-w-xs leading-relaxed font-medium"
+                style={{ color: "rgba(246,243,237,0.85)" }}
               >
                 AI-powered clinical trial matching &amp; digital twin health platform.
               </motion.p>
@@ -184,16 +184,16 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.9, duration: 0.5 }}
-                className="mt-8 space-y-3"
+                className="mt-8 space-y-3.5"
               >
                 {[
-                  { icon: "🔬", text: "Clinical trial matching" },
-                  { icon: "🩺", text: "Care team recommendations" },
-                  { icon: "🧬", text: "AI-powered health analysis" },
+                  { text: "Clinical trial matching" },
+                  { text: "Care team recommendations" },
+                  { text: "AI-powered health analysis" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <span className="text-base">{item.icon}</span>
-                    <span className="text-xs" style={{ color: "rgba(246,243,237,0.7)" }}>{item.text}</span>
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "rgba(246,243,237,0.5)" }} />
+                    <span className="text-sm" style={{ color: "rgba(246,243,237,0.75)" }}>{item.text}</span>
                   </div>
                 ))}
               </motion.div>

@@ -291,7 +291,9 @@ function TiltCard({ children, active, borderColor, bg, shadow }: { children: Rea
         borderRadius: 16,
         border: `1px solid ${borderColor}`,
         background: bg,
-        boxShadow: shadow ?? "none",
+        boxShadow: hovered && !active
+          ? `${shadow ?? ""} 0 20px 50px rgba(107,127,106,0.14), 0 0 20px rgba(107,127,106,0.08)`.trim()
+          : shadow ?? "none",
         overflow: "hidden",
         position: "relative",
         transition: "background 0.3s, border-color 0.3s, box-shadow 0.3s",
@@ -379,7 +381,7 @@ function TrialMatchCard({
           </div>
         </div>
         <div
-          className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300"
+          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300"
           style={{ background: "rgba(47,62,52,0.06)", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none">

@@ -54,7 +54,8 @@ function TiltCard({ children, borderColor }: { children: React.ReactNode; border
         borderRadius: 12,
         border: `1px solid ${hovered ? borderColor : "rgba(47,62,52,0.1)"}`,
         background: "#FFFFFF",
-        transition: "border-color 0.2s",
+        boxShadow: hovered ? `0 20px 50px rgba(107,127,106,0.15), 0 0 20px rgba(107,127,106,0.08)` : "none",
+        transition: "border-color 0.2s, box-shadow 0.2s",
         position: "relative",
         overflow: "hidden",
       }}
@@ -83,7 +84,7 @@ function ScoreRing({ score, color, size = 48 }: { score: number; color: string; 
   const circumference = 2 * Math.PI * radius;
   const strokeDash = (score / 100) * circumference;
   return (
-    <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(47,62,52,0.1)" strokeWidth={4} />
         <circle
