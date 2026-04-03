@@ -1,6 +1,6 @@
-import { Suspense, useRef, useEffect } from "react";
+import { Suspense, useRef, useEffect, useMemo, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Center } from "@react-three/drei";
+import { OrbitControls, useGLTF, Center, Html } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { BodySystem } from "../../../types/digitalTwin";
@@ -10,150 +10,287 @@ interface BodyVisualizationProps {
   onSystemClick?: (system: BodySystem) => void;
 }
 
-// Hotspot positions in world space after model is scaled by MODEL_SCALE and centered
-// Model is ~0.027 units tall, scaled to ~1.75 units tall
 const MODEL_SCALE = 65;
+
 const SYSTEM_HOTSPOTS: Record<string, [number, number, number]> = {
-  cardiovascular:    [ 0.08,  0.38,  0.06],
-  respiratory:       [-0.10,  0.28,  0.06],
-  metabolic:         [ 0.10,  0.05,  0.06],
-  neurological:      [ 0.00,  0.78,  0.00],
-  musculoskeletal:   [ 0.22, -0.10,  0.00],
-  renal:             [ 0.10, -0.02, -0.04],
-  gastrointestinal:  [-0.06,  0.02,  0.06],
-  endocrine:         [ 0.00,  0.22,  0.06],
-  immune:            [ 0.06,  0.32,  0.03],
-  hepatic:           [ 0.14,  0.12,  0.06],
-  reproductive:      [ 0.00, -0.26,  0.05],
-  dermatological:    [-0.18,  0.10,  0.10],
+  neurological:          [ 0.00,  0.72,  0.08],
+  cardiovascular:        [ 0.09,  0.32,  0.10],
+  respiratory:           [-0.09,  0.28,  0.10],
+  immune:                [ 0.07,  0.30,  0.08],
+  hepatic:               [ 0.13,  0.14,  0.09],
+  gastrointestinal:      [-0.07,  0.04,  0.10],
+  "endocrine/metabolic": [ 0.05,  0.08,  0.09],
+  endocrine:             [ 0.05,  0.08,  0.09],
+  metabolic:             [ 0.05,  0.08,  0.09],
+  renal:                 [ 0.11,  0.10, -0.04],
+  hematologic:           [ 0.16,  0.20,  0.04],
+  musculoskeletal:       [ 0.20, -0.10,  0.04],
+  reproductive:          [ 0.00, -0.24,  0.08],
+  dermatological:        [-0.18,  0.15,  0.10],
 };
 
 const STATUS_COLOR: Record<string, string> = {
   abnormal: "#F59E0B",
-  critical: "#EF4444",
-  normal: "#22C55E",
-  unknown: "#6B7280",
+  critical:  "#EF4444",
+  normal:    "#22C55E",
+  unknown:   "#6B7280",
 };
 
-function PulsingHotspot({
-  position,
-  color,
-  onClick,
-}: {
+const STATUS_LABEL: Record<string, string> = {
+  abnormal: "Abnormal",
+  critical:  "Critical",
+  normal:    "Normal",
+  unknown:   "Unknown",
+};
+
+// Subtle scan line
+function ScanLine() {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = (clock.getElapsedTime() % 4) / 4;
+    ref.current.position.y = -0.95 + t * 1.9;
+    (ref.current.material as THREE.MeshBasicMaterial).opacity =
+      0.08 + Math.sin(clock.getElapsedTime() * 6) * 0.03;
+  });
+  return (
+    <mesh ref={ref} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[0.55, 0.008]} />
+      <meshBasicMaterial color="#22d3ee" transparent opacity={0.1} depthWrite={false} />
+    </mesh>
+  );
+}
+
+// Tight focused light — low intensity, very short range
+function RegionLight({ position, color, intensity }: {
   position: [number, number, number];
   color: string;
-  onClick: () => void;
+  intensity: number;
 }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
+  const ref = useRef<THREE.PointLight>(null);
   const t = useRef(Math.random() * Math.PI * 2);
+  useFrame((_, dt) => {
+    t.current += dt * 2;
+    if (ref.current) {
+      ref.current.intensity = intensity * (0.85 + 0.15 * Math.sin(t.current));
+    }
+  });
+  return (
+    <pointLight
+      ref={ref}
+      position={position}
+      color={color}
+      intensity={intensity}
+      distance={0.18}
+      decay={2}
+    />
+  );
+}
 
-  useFrame((_, delta) => {
-    t.current += delta * 2;
-    if (meshRef.current) {
-      const s = 1 + Math.sin(t.current) * 0.25;
-      meshRef.current.scale.setScalar(s);
-      (meshRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        1.5 + Math.sin(t.current) * 0.8;
+// Hotspot marker — small dot + expanding ring + clickable label
+function HotspotMarker({ position, color, system, selected, onSelect }: {
+  position: [number, number, number];
+  color: string;
+  system: BodySystem;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const ringRef = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const t = useRef(Math.random() * Math.PI * 2);
+  const c = useMemo(() => new THREE.Color(color), [color]);
+
+  useFrame((_, dt) => {
+    t.current += dt * 1.8;
+    if (coreRef.current) {
+      const s = 1 + Math.sin(t.current) * 0.15;
+      coreRef.current.scale.setScalar(s);
+      (coreRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
+        1.8 + Math.sin(t.current) * 0.6;
     }
     if (ringRef.current) {
-      const rs = 1 + ((t.current % (Math.PI * 2)) / (Math.PI * 2)) * 1.5;
-      ringRef.current.scale.setScalar(rs);
-      (ringRef.current.material as THREE.MeshStandardMaterial).opacity =
-        1 - (t.current % (Math.PI * 2)) / (Math.PI * 2);
+      const p = (t.current % (Math.PI * 2)) / (Math.PI * 2);
+      ringRef.current.scale.setScalar(1 + p * 2);
+      (ringRef.current.material as THREE.MeshStandardMaterial).opacity = (1 - p) * 0.5;
     }
   });
 
-  const c = new THREE.Color(color);
-
   return (
-    <group position={position} onClick={onClick}>
-      {/* Pulsing ring */}
+    <group position={position}>
+      {/* Expanding ring */}
       <mesh ref={ringRef}>
-        <torusGeometry args={[0.018, 0.003, 8, 24]} />
-        <meshStandardMaterial
-          color={c}
-          emissive={c}
-          emissiveIntensity={2}
-          transparent
-          opacity={0.6}
-          depthWrite={false}
-        />
+        <torusGeometry args={[0.014, 0.002, 8, 32]} />
+        <meshStandardMaterial color={c} emissive={c} emissiveIntensity={2}
+          transparent opacity={0.5} depthWrite={false} toneMapped={false} />
       </mesh>
-      {/* Core sphere */}
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[0.012, 12, 12]} />
-        <meshStandardMaterial
-          color={c}
-          emissive={c}
-          emissiveIntensity={2}
-          toneMapped={false}
-        />
+      {/* Core dot */}
+      <mesh ref={coreRef} onClick={onSelect}>
+        <sphereGeometry args={[0.009, 12, 12]} />
+        <meshStandardMaterial color={c} emissive={c} emissiveIntensity={2} toneMapped={false} />
       </mesh>
+      {/* HTML label */}
+      <Html distanceFactor={3} style={{ pointerEvents: "none" }}>
+        <div
+          onClick={onSelect}
+          style={{
+            pointerEvents: "auto",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            background: selected ? `${color}22` : "rgba(10,14,26,0.82)",
+            border: `1px solid ${color}${selected ? "99" : "44"}`,
+            borderRadius: 6,
+            padding: "3px 8px 3px 6px",
+            fontSize: 9,
+            color,
+            whiteSpace: "nowrap",
+            fontFamily: "Inter, system-ui, sans-serif",
+            fontWeight: 700,
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            backdropFilter: "blur(6px)",
+            transition: "all 0.15s ease",
+            boxShadow: selected ? `0 0 14px ${color}50` : `0 0 6px ${color}20`,
+            marginLeft: 12,
+          }}
+        >
+          <div style={{
+            width: 5, height: 5, borderRadius: "50%",
+            background: color,
+            boxShadow: `0 0 4px ${color}`,
+            flexShrink: 0,
+          }} />
+          {system.system.replace(/_/g, " ")}
+          <span style={{ opacity: 0.6, fontSize: 8, marginLeft: 2 }}>›</span>
+        </div>
+      </Html>
     </group>
   );
 }
 
-function AnatomyModel({
-  bodySystems,
-  onSystemClick,
-}: {
+function AnatomyModel({ bodySystems, selectedSystem, onSelect }: {
   bodySystems: BodySystem[];
-  onSystemClick?: (s: BodySystem) => void;
+  selectedSystem: string | null;
+  onSelect: (sys: BodySystem | null) => void;
 }) {
   const { scene } = useGLTF("/ecorche.glb");
-  const modelRef = useRef<THREE.Group>(null);
 
-  // Apply consistent material — slightly warm ecorché look
+  const flagged = useMemo(
+    () => bodySystems.filter((s) => s.status !== "normal" && s.status !== "unknown"),
+    [bodySystems]
+  );
+
   useEffect(() => {
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color("#c8866a"),
+      roughness: 0.55,
+      metalness: 0.04,
+    });
     scene.traverse((obj) => {
-      if ((obj as THREE.Mesh).isMesh) {
-        const mesh = obj as THREE.Mesh;
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach((m) => applyMat(m));
-        } else {
-          applyMat(mesh.material);
-        }
-      }
+      if ((obj as THREE.Mesh).isMesh) (obj as THREE.Mesh).material = mat;
     });
   }, [scene]);
 
-  function applyMat(mat: THREE.Material) {
-    const m = mat as THREE.MeshStandardMaterial;
-    if (!m.isMeshStandardMaterial) return;
-    m.color.set("#c98b72");
-    m.roughness = 0.6;
-    m.metalness = 0.05;
-    m.emissive.set("#000000");
-  }
-
-  // Non-normal / non-unknown systems that have hotspot positions
-  const flagged = bodySystems.filter(
-    (s) => s.status !== "normal" && s.status !== "unknown"
-  );
-
   return (
-    <group ref={modelRef}>
+    <group>
+      <ScanLine />
+
+      {/* Tight region lights */}
+      {flagged.map((sys) => {
+        const key = sys.system.toLowerCase();
+        const pos = SYSTEM_HOTSPOTS[key];
+        if (!pos) return null;
+        return (
+          <RegionLight
+            key={`light-${sys.system}`}
+            position={pos}
+            color={STATUS_COLOR[sys.status] ?? "#F59E0B"}
+            intensity={sys.status === "critical" ? 0.9 : 0.55}
+          />
+        );
+      })}
+
       <Center>
         <primitive object={scene} scale={MODEL_SCALE} />
       </Center>
 
-      {/* Glow hotspots for affected systems */}
       {flagged.map((sys) => {
-        const pos = SYSTEM_HOTSPOTS[sys.system.toLowerCase()];
+        const key = sys.system.toLowerCase();
+        const pos = SYSTEM_HOTSPOTS[key];
         if (!pos) return null;
-        const color = STATUS_COLOR[sys.status] ?? "#F59E0B";
         return (
-          <group key={sys.system}>
-            <PulsingHotspot
-              position={pos}
-              color={color}
-              onClick={() => { onSystemClick?.(sys); }}
-            />
-          </group>
+          <HotspotMarker
+            key={`marker-${sys.system}`}
+            position={pos}
+            color={STATUS_COLOR[sys.status] ?? "#F59E0B"}
+            system={sys}
+            selected={selectedSystem === sys.system}
+            onSelect={() => onSelect(selectedSystem === sys.system ? null : sys)}
+          />
         );
       })}
     </group>
+  );
+}
+
+// Detail panel shown when a system is selected
+function SystemDetailPanel({ system, onClose }: { system: BodySystem; onClose: () => void }) {
+  const color = STATUS_COLOR[system.status] ?? "#6B7280";
+  return (
+    <div
+      className="absolute top-4 left-4 z-10 w-64 rounded-xl border backdrop-blur-md"
+      style={{
+        background: "rgba(10,14,26,0.92)",
+        borderColor: `${color}40`,
+        boxShadow: `0 0 24px ${color}20`,
+      }}
+    >
+      <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: `${color}25` }}>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
+          <span className="text-white text-xs font-bold uppercase tracking-wider">
+            {system.system.replace(/_/g, " ")}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${color}20`, color }}>
+            {STATUS_LABEL[system.status]}
+          </span>
+          <button onClick={onClose} className="text-[#4B5563] hover:text-white transition-colors text-sm leading-none">×</button>
+        </div>
+      </div>
+
+      <div className="px-4 py-3 space-y-3">
+        {system.findings.length > 0 && (
+          <div>
+            <p className="text-[10px] font-semibold text-[#4B5563] uppercase tracking-wider mb-1.5">Findings</p>
+            <ul className="space-y-1">
+              {system.findings.map((f, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-[11px] text-[#D1D5DB]">
+                  <span style={{ color, marginTop: 2, flexShrink: 0 }}>›</span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {system.relevant_labs.length > 0 && (
+          <div>
+            <p className="text-[10px] font-semibold text-[#4B5563] uppercase tracking-wider mb-1.5">Relevant Labs</p>
+            <div className="flex flex-wrap gap-1">
+              {system.relevant_labs.map((lab) => (
+                <span key={lab} className="text-[10px] px-2 py-0.5 rounded-full"
+                  style={{ background: `${color}15`, color, border: `1px solid ${color}30` }}>
+                  {lab}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -167,57 +304,69 @@ function Loader() {
 }
 
 export function BodyVisualization({ bodySystems, onSystemClick }: BodyVisualizationProps) {
+  const [selectedSystem, setSelectedSystem] = useState<BodySystem | null>(null);
+
   const affectedSystems = bodySystems.filter(
     (s) => s.status !== "normal" && s.status !== "unknown"
   );
+  const hasCritical = affectedSystems.some((s) => s.status === "critical");
+
+  const handleSelect = (sys: BodySystem | null) => {
+    setSelectedSystem(sys);
+    if (sys) onSystemClick?.(sys);
+  };
 
   return (
     <div className="bg-[#0a0e1a] rounded-xl border border-[#1E293B] overflow-hidden">
       <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-[#4B5563] uppercase tracking-wider">
-          3D Anatomy
-        </h3>
-        <div className="flex items-center gap-2">
+        <h3 className="text-xs font-semibold text-[#4B5563] uppercase tracking-wider">3D Anatomy</h3>
+        <div className="flex items-center gap-3">
           {affectedSystems.length > 0 && (
-            <span className="text-[10px] text-[#F59E0B] font-medium">
+            <span className={`text-[10px] font-semibold ${hasCritical ? "text-[#EF4444]" : "text-[#F59E0B]"}`}>
               {affectedSystems.length} system{affectedSystems.length > 1 ? "s" : ""} flagged
             </span>
           )}
-          <span className="text-[9px] text-[#4B5563]">Drag to rotate · Scroll to zoom</span>
+          <span className="text-[9px] text-[#4B5563]">Drag · Scroll · Click marker for details</span>
         </div>
       </div>
 
-      <div style={{ height: 480, position: "relative" }}>
+      <div style={{ height: 520, position: "relative" }}>
+        {selectedSystem && (
+          <SystemDetailPanel
+            system={selectedSystem}
+            onClose={() => setSelectedSystem(null)}
+          />
+        )}
+
         <Suspense fallback={<Loader />}>
           <Canvas
             camera={{ position: [0, 0.3, 2.2], fov: 50, near: 0.01, far: 100 }}
-            gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
+            gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.3 }}
             style={{ background: "#0a0e1a" }}
           >
-            <ambientLight intensity={0.4} />
-            <directionalLight position={[2, 3, 2]} intensity={1.5} />
-            <directionalLight position={[-2, 1, -1]} intensity={0.5} color="#6BAED6" />
-            <pointLight position={[0, 2, 1]} intensity={0.8} color="#ffffff" />
+            <ambientLight intensity={0.65} />
+            <directionalLight position={[2, 4, 3]} intensity={1.5} />
+            <directionalLight position={[-2, 1, -2]} intensity={0.35} color="#7eb8d4" />
 
-            <AnatomyModel bodySystems={bodySystems} onSystemClick={onSystemClick} />
+            <AnatomyModel
+              bodySystems={bodySystems}
+              selectedSystem={selectedSystem?.system ?? null}
+              onSelect={handleSelect}
+            />
 
             <OrbitControls
-              enablePan
-              enableZoom
-              enableRotate
-              minDistance={0.5}
-              maxDistance={6}
+              enablePan enableZoom enableRotate
+              minDistance={0.6} maxDistance={5}
               target={[0, 0.2, 0]}
-              dampingFactor={0.08}
-              enableDamping
+              dampingFactor={0.08} enableDamping
             />
 
             <EffectComposer>
               <Bloom
-                intensity={affectedSystems.length > 0 ? 1.6 : 0.4}
-                luminanceThreshold={0.3}
+                intensity={0.6}
+                luminanceThreshold={0.5}
                 luminanceSmoothing={0.9}
-                radius={0.7}
+                radius={0.5}
               />
             </EffectComposer>
           </Canvas>
@@ -229,27 +378,22 @@ export function BodyVisualization({ bodySystems, onSystemClick }: BodyVisualizat
           <div className="flex flex-wrap gap-1.5">
             {bodySystems.slice(0, 8).map((sys) => {
               const color = STATUS_COLOR[sys.status] ?? "#6B7280";
+              const isFlagged = sys.status !== "normal" && sys.status !== "unknown";
+              const isSelected = selectedSystem?.system === sys.system;
               return (
                 <button
                   key={sys.system}
-                  onClick={() => onSystemClick?.(sys)}
-                  className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium border transition-all hover:scale-105"
+                  onClick={() => handleSelect(isSelected ? null : sys)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all hover:scale-105"
                   style={{
-                    background: `${color}18`,
-                    borderColor: `${color}40`,
+                    background: isSelected ? `${color}25` : `${color}10`,
+                    borderColor: isSelected ? `${color}80` : `${color}35`,
                     color,
-                    boxShadow: sys.status !== "normal" && sys.status !== "unknown"
-                      ? `0 0 8px ${color}50`
-                      : "none",
+                    boxShadow: isFlagged ? `0 0 8px ${color}30` : "none",
                   }}
                 >
-                  <div
-                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{
-                      background: color,
-                      boxShadow: `0 0 4px ${color}`,
-                    }}
-                  />
+                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: color, boxShadow: isFlagged ? `0 0 4px ${color}` : "none" }} />
                   {sys.system.replace(/_/g, " ")}
                 </button>
               );
