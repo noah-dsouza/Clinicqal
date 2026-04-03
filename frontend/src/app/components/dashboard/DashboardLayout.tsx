@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { NavBar } from "./NavBar";
 import { HealthScoreGauge } from "./HealthScoreGauge";
 import { BodyVisualization } from "./BodyVisualization";
@@ -231,18 +231,21 @@ function DarkCard({ title, children, accent = "#14B8A6" }: { title: string; chil
       className="relative rounded-2xl border overflow-hidden group"
       style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.07)" }}
       whileHover={{
-        borderColor: `${accent}70`,
-        boxShadow: `0 20px 45px ${accent}30`,
-        y: -2,
+        borderColor: `${accent}aa`,
+        boxShadow: `0 30px 65px ${accent}33, 0 0 25px ${accent}22`,
+        y: -4,
       }}
       transition={{ type: "spring", stiffness: 320, damping: 26 }}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-300"
-        style={{ background: `radial-gradient(circle at top, ${accent}35, transparent 65%)` }}
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-80 transition-opacity duration-300"
+        style={{ background: `radial-gradient(circle at 30% 0%, ${accent}29, transparent 65%)` }}
       />
       <div className="relative p-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "#64748B" }}>{title}</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>{title}</h3>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent, boxShadow: `0 0 12px ${accent}90` }} />
+        </div>
         {children}
       </div>
     </motion.div>

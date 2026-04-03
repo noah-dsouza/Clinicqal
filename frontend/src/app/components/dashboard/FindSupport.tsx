@@ -1,8 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef } from "react";
 import { motion, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { DigitalTwin } from "../../../types/digitalTwin";
-import { openBotpressChat } from "../../../lib/botpress";
 
 interface DoctorResult {
   id: string;
@@ -38,24 +37,6 @@ interface TrialMatch {
   contact: string;
   eligibilityHighlights: string[];
   url: string;
-}
-
-interface ProviderMatch {
-  id: string;
-  name: string;
-  specialty: string;
-  credentials: string;
-  location: string;
-  distance: string;
-  matchReason: string;
-  tags: string[];
-  telehealth: boolean;
-  acceptingPatients: boolean;
-  phone: string;
-  address: string;
-  focus: string[];
-  relevanceNote: string;
-  insuranceAccepted: string[];
 }
 
 type FilterCategory = "all" | "high" | "medium" | "low";
@@ -216,176 +197,6 @@ function generateTrials(twin: DigitalTwin): TrialMatch[] {
   });
 
   return trials;
-}
-
-function generateProviders(twin: DigitalTwin): ProviderMatch[] {
-  const condition = twin.intake.diagnosis.primary_condition;
-  const conditionLower = condition.toLowerCase();
-
-  const isCancer = conditionLower.includes("cancer") || conditionLower.includes("carcinoma") || conditionLower.includes("lymphoma") || conditionLower.includes("leukemia") || conditionLower.includes("melanoma");
-  const isDiabetes = conditionLower.includes("diabetes") || conditionLower.includes("diabetic");
-  const isCardiac = conditionLower.includes("cardiac") || conditionLower.includes("heart") || conditionLower.includes("coronary");
-  const isKidney = conditionLower.includes("kidney") || conditionLower.includes("renal") || conditionLower.includes("nephro");
-
-  const providers: ProviderMatch[] = [];
-
-  // Always include PCP
-  providers.push({
-    id: "p-001",
-    name: "Dr. Sarah Chen, MD",
-    specialty: "Internal Medicine / Primary Care",
-    credentials: "MD, FACP — Board Certified Internal Medicine",
-    location: "CareFirst Medical Group",
-    distance: "2.1 mi",
-    matchReason: `Coordinates holistic care for ${condition} and comorbidities`,
-    tags: ["Primary care", "Care coordinator", "Preventive medicine"],
-    telehealth: true,
-    acceptingPatients: true,
-    phone: "(555) 482-0100",
-    address: "1240 Medical Plaza Dr, Suite 201",
-    focus: ["Chronic disease management", "Preventive care", "Lab monitoring", "Medication management"],
-    relevanceNote: "Ideal as your primary care coordinator — can manage referrals, labs, and medication adjustments across all your conditions.",
-    insuranceAccepted: ["Blue Cross", "Aetna", "UnitedHealth", "Cigna", "Medicare"],
-  });
-
-  if (isCancer) {
-    providers.push(
-      {
-        id: "p-c01",
-        name: "Dr. Marcus Webb, MD, PhD",
-        specialty: "Medical Oncology",
-        credentials: "MD, PhD, FASCO — Board Certified Medical Oncology",
-        location: "University Cancer Center",
-        distance: "4.8 mi",
-        matchReason: `Specializes in ${condition} — trial enrollment coordinator`,
-        tags: [`${condition} specialist`, "Clinical trial coordinator", "Immunotherapy"],
-        telehealth: true,
-        acceptingPatients: true,
-        phone: "(555) 628-4400",
-        address: "800 University Medical Drive, Oncology Pavilion",
-        focus: ["Solid tumor oncology", "Immunotherapy", "Clinical trial matching", "Second opinions"],
-        relevanceNote: "Highly relevant — specializes in your diagnosis and actively enrolls patients in the trials matched above. Can review trial eligibility in-depth.",
-        insuranceAccepted: ["Blue Cross", "Aetna", "Medicare", "Medicaid"],
-      },
-      {
-        id: "p-c02",
-        name: "Dr. Priya Sharma, MD",
-        specialty: "Hematology / Oncology",
-        credentials: "MD — Board Certified Hematology & Medical Oncology",
-        location: "Regional Cancer Alliance",
-        distance: "7.2 mi",
-        matchReason: "Oncology second opinion specialist — complex case review",
-        tags: ["Second opinion", "Molecular oncology", "Hematologic malignancies"],
-        telehealth: false,
-        acceptingPatients: true,
-        phone: "(555) 301-7700",
-        address: "2200 Oncology Way, Cancer Care Center",
-        focus: ["Molecular profiling interpretation", "Treatment planning", "Second opinion consultations"],
-        relevanceNote: "Recommended for a second opinion on treatment or trial eligibility. Expertise in molecular markers may unlock additional trial options.",
-        insuranceAccepted: ["Most major insurers", "Medicare"],
-      }
-    );
-  }
-
-  if (isDiabetes) {
-    providers.push(
-      {
-        id: "p-d01",
-        name: "Dr. James Okafor, MD",
-        specialty: "Endocrinology & Metabolism",
-        credentials: "MD — Board Certified Endocrinology, Diabetes & Metabolism",
-        location: "Diabetes & Endocrine Associates",
-        distance: "3.3 mi",
-        matchReason: "Endocrinologist specializing in complex diabetes management",
-        tags: ["Diabetes specialist", "HbA1c optimization", "Insulin management"],
-        telehealth: true,
-        acceptingPatients: true,
-        phone: "(555) 554-2200",
-        address: "445 Health Sciences Blvd, Suite 310",
-        focus: ["Type 1 & Type 2 diabetes", "CGM setup", "Insulin pump management", "Thyroid disorders"],
-        relevanceNote: "Ideal for optimizing your glucose control — particularly relevant given your lab values. Can also facilitate enrollment in diabetes trials.",
-        insuranceAccepted: ["Blue Cross", "Cigna", "Aetna", "UnitedHealth"],
-      },
-      {
-        id: "p-d02",
-        name: "Rachel Torres, RDN, CDCES",
-        specialty: "Registered Dietitian / Diabetes Educator",
-        credentials: "RDN, CDCES — Certified Diabetes Care & Education Specialist",
-        location: "Integrative Health Partners",
-        distance: "1.9 mi",
-        matchReason: "Nutrition and lifestyle optimization for diabetes management",
-        tags: ["Medical nutrition therapy", "Diabetes education", "Lifestyle coach"],
-        telehealth: true,
-        acceptingPatients: true,
-        phone: "(555) 218-9900",
-        address: "88 Wellness Court, Suite 105",
-        focus: ["Carbohydrate management", "Meal planning for glycemic control", "Behavioral nutrition counseling"],
-        relevanceNote: "Highly recommended — diet quality improvements are among the highest-impact interventions for your health markers.",
-        insuranceAccepted: ["Most major insurers", "Medicare Part B"],
-      }
-    );
-  }
-
-  if (isCardiac) {
-    providers.push({
-      id: "p-h01",
-      name: "Dr. Angela Foster, MD, FACC",
-      specialty: "Cardiology",
-      credentials: "MD, FACC — Board Certified Cardiology & Electrophysiology",
-      location: "Heart & Vascular Institute",
-      distance: "5.1 mi",
-      matchReason: "Cardiologist with expertise in your cardiac condition",
-      tags: ["Cardiology", "Electrophysiology", "Cardiac rehab"],
-      telehealth: true,
-      acceptingPatients: true,
-      phone: "(555) 740-6600",
-      address: "1100 Heart Center Drive",
-      focus: ["Arrhythmia management", "Heart failure", "Cardiac imaging", "Preventive cardiology"],
-      relevanceNote: "Direct specialty match for your cardiac diagnosis. Can provide comprehensive evaluation, manage medications, and assess for trial eligibility.",
-      insuranceAccepted: ["Blue Cross", "Aetna", "Medicare", "UnitedHealth"],
-    });
-  }
-
-  if (isKidney) {
-    providers.push({
-      id: "p-k01",
-      name: "Dr. Robert Nkemdirim, MD",
-      specialty: "Nephrology",
-      credentials: "MD — Board Certified Nephrology",
-      location: "Kidney Care Specialists",
-      distance: "6.4 mi",
-      matchReason: "Nephrologist matching your kidney function markers",
-      tags: ["Nephrology", "CKD management", "Dialysis planning"],
-      telehealth: false,
-      acceptingPatients: true,
-      phone: "(555) 391-5500",
-      address: "700 Nephrology Center Pkwy",
-      focus: ["CKD progression management", "Hypertension in kidney disease", "Pre-dialysis planning", "Kidney transplant evaluation"],
-      relevanceNote: "Essential if your creatinine/eGFR indicates meaningful kidney function decline. Also a gateway to the kidney-related trials matched above.",
-      insuranceAccepted: ["Most major insurers", "Medicare", "Medicaid"],
-    });
-  }
-
-  // Mental health / support always suggested if any conditions
-  providers.push({
-    id: "p-mh01",
-    name: "Dr. Leila Nazari, PsyD",
-    specialty: "Health Psychology / Oncology Support",
-    credentials: "PsyD — Licensed Clinical Psychologist, Health Psychology Specialty",
-    location: "Mind & Body Wellness Center",
-    distance: "Telehealth available",
-    matchReason: "Psychological support for chronic illness and care navigation",
-    tags: ["Mental health", "Chronic illness support", "Care navigation"],
-    telehealth: true,
-    acceptingPatients: true,
-    phone: "(555) 119-4400",
-    address: "Telehealth — nationwide",
-    focus: ["Adjustment to chronic illness", "Anxiety and depression related to health", "Health-related decision support", "Caregiver support"],
-    relevanceNote: "Highly recommended alongside medical care — mental health support is a critical and often overlooked component of managing complex health conditions.",
-    insuranceAccepted: ["Blue Cross", "Aetna", "Cigna", "Self-pay sliding scale"],
-  });
-
-  return providers.slice(0, 6);
 }
 
 // ─── Score helpers ──────────────────────────────────────────────────────────
@@ -646,123 +457,11 @@ function TrialMatchCard({
   );
 }
 
-// ─── Expandable Provider Card ───────────────────────────────────────────────
-
-function ProviderMatchCard({ provider, expanded, onToggle }: { provider: ProviderMatch; expanded: boolean; onToggle: () => void }) {
-  return (
-    <TiltCard
-      active={expanded}
-      borderColor={expanded ? "rgba(20,184,166,0.4)" : "rgba(255,255,255,0.07)"}
-      bg={expanded ? "#1a2744" : "#1E293B"}
-      shadow={expanded ? "0 0 24px rgba(20,184,166,0.1)" : undefined}
-    >
-    <div className="cursor-pointer" onClick={onToggle}>
-      {/* Summary row */}
-      <div className="p-4 flex items-start gap-3">
-        <div
-          className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center text-lg font-bold"
-          style={{ background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
-        >
-          {provider.name.charAt(3)}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-[#F1F5F9] mb-0.5">{provider.name}</h3>
-          <p className="text-xs text-[#14B8A6] mb-1">{provider.specialty}</p>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex items-center gap-1">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2" />
-                <circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2" />
-              </svg>
-              <span className="text-[10px] text-[#64748B]">{provider.distance}</span>
-            </div>
-            {provider.telehealth && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(96,165,250,0.1)] text-[#60A5FA] border border-[rgba(96,165,250,0.2)]">Telehealth</span>
-            )}
-            {provider.acceptingPatients && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(52,211,153,0.1)] text-[#34D399] border border-[rgba(52,211,153,0.2)]">Accepting</span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {provider.tags.slice(0, 3).map((t, i) => (
-              <Tag key={i} label={t} color="#60A5FA" />
-            ))}
-          </div>
-        </div>
-        <div
-          className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300"
-          style={{ background: "rgba(255,255,255,0.05)", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Expanded detail */}
-      <div
-        className="overflow-hidden transition-all duration-300"
-        style={{ maxHeight: expanded ? "1200px" : "0px", opacity: expanded ? 1 : 0 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-4 pb-5 border-t border-[rgba(255,255,255,0.06)] pt-4 space-y-4">
-          <div className="rounded-xl p-3 bg-[rgba(20,184,166,0.06)] border border-[rgba(20,184,166,0.15)]">
-            <h4 className="text-[10px] font-semibold text-[#14B8A6] uppercase tracking-wider mb-1">Why This Match</h4>
-            <p className="text-xs text-[#CBD5E1] leading-relaxed">{provider.relevanceNote}</p>
-          </div>
-
-          <div>
-            <h4 className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-2">Care Focus Areas</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {provider.focus.map((f, i) => (
-                <span key={i} className="text-[10px] px-2 py-1 rounded-lg bg-[rgba(255,255,255,0.05)] text-[#94A3B8] border border-[rgba(255,255,255,0.08)]">{f}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Credentials</span>
-              <p className="text-[#CBD5E1] mt-0.5">{provider.credentials}</p>
-            </div>
-            <div>
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Address</span>
-              <p className="text-[#CBD5E1] mt-0.5">{provider.address}</p>
-            </div>
-            <div>
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Phone</span>
-              <p className="text-[#14B8A6] mt-0.5">{provider.phone}</p>
-            </div>
-            <div>
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Insurance</span>
-              <p className="text-[#CBD5E1] mt-0.5">{provider.insuranceAccepted.slice(0, 3).join(", ")}</p>
-            </div>
-          </div>
-
-          <div className="flex gap-2 pt-1">
-            <button
-              className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
-              style={{ background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.25)" }}
-            >
-              Request Appointment
-            </button>
-            <button
-              className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
-              style={{ background: "rgba(167,139,250,0.12)", color: "#A78BFA", border: "1px solid rgba(167,139,250,0.25)" }}
-            >
-              Ask AI About This Provider
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    </TiltCard>
-  );
-}
-
 // ─── Real Doctor Card ─────────────────────────────────────────────────────────
 
-function RealDoctorCard({ doctor, onAskAI }: { doctor: DoctorResult; onAskAI: (doctor: DoctorResult) => void }) {
+function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
+  const telHref =
+    doctor.phone && /[\d+]/.test(doctor.phone) ? `tel:${doctor.phone.replace(/[^+\d]/g, "")}` : null;
   return (
     <TiltCard active={false} borderColor="rgba(20,184,166,0.15)" bg="#1E293B">
       <div className="p-4">
@@ -796,7 +495,7 @@ function RealDoctorCard({ doctor, onAskAI }: { doctor: DoctorResult; onAskAI: (d
             {doctor.phone}
           </p>
         </div>
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-col sm:flex-row gap-2">
           {doctor.website ? (
             <a
               href={doctor.website}
@@ -805,24 +504,32 @@ function RealDoctorCard({ doctor, onAskAI }: { doctor: DoctorResult; onAskAI: (d
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
               style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
             >
-              View Profile ↗
+              Visit Website ↗
             </a>
           ) : (
             <div
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
               style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}
             >
-              No website
+              No website listed
             </div>
           )}
-          <button
-            type="button"
-            onClick={() => onAskAI(doctor)}
-            className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
-            style={{ background: "rgba(96,165,250,0.1)", color: "#60A5FA", border: "1px solid rgba(96,165,250,0.2)" }}
-          >
-            Ask AI About This Doctor
-          </button>
+          {telHref ? (
+            <a
+              href={telHref}
+              className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
+              style={{ background: "rgba(96,165,250,0.12)", color: "#60A5FA", border: "1px solid rgba(96,165,250,0.25)" }}
+            >
+              Call Clinic
+            </a>
+          ) : (
+            <div
+              className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
+              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}
+            >
+              Phone unavailable
+            </div>
+          )}
         </div>
       </div>
     </TiltCard>
@@ -855,16 +562,6 @@ export function FindSupport() {
     if (filter === "low") return t.matchScore < 60;
     return true;
   });
-
-  const handleAskAIAboutDoctor = useCallback(
-    (doctor: DoctorResult) => {
-      openBotpressChat({
-        twin,
-        question: `Is ${doctor.name} (${doctor.specialty}) at ${doctor.address} a good fit for my condition?`,
-      });
-    },
-    [twin]
-  );
 
   const searchDoctors = async (loc: string) => {
     if (!loc.trim()) return;
@@ -1080,7 +777,7 @@ export function FindSupport() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.06, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                       >
-                        <RealDoctorCard doctor={doc} onAskAI={handleAskAIAboutDoctor} />
+                        <RealDoctorCard doctor={doc} />
                       </motion.div>
                     ))}
                   </div>

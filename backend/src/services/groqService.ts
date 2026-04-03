@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import { jsonrepair } from "jsonrepair";
 import { DigitalTwin } from "../types/digitalTwin";
 import { ClinicalTrial, MatchResult, CriterionMatch } from "../types/trial";
 import { DoctorResult } from "../types/doctor";
@@ -22,35 +23,66 @@ function getClient(): Groq | null {
   return cachedClient;
 }
 
+function clampJson(text: string): string {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start !== -1 && end !== -1 && end > start) {
+    return text.slice(start, end + 1);
+  }
+  return text;
+}
+
+function tryParseJson(candidate: string): any | null {
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    try {
+      const repaired = jsonrepair(candidate);
+      return JSON.parse(repaired);
+    } catch {
+      return null;
+    }
+  }
+}
+
 function extractJson(text?: string): any | null {
   if (!text) return null;
+
   const trimmed = text.trim();
   const match = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const jsonString = match ? match[1] : trimmed;
-  try {
-    return JSON.parse(jsonString);
-  } catch (err) {
-    console.error("[Groq] JSON parse failed", err, jsonString);
-    return null;
+  const raw = match ? match[1] : trimmed;
+
+  const candidates = [clampJson(raw), clampJson(raw.replace(/\s+/g, " "))];
+  for (const candidate of candidates) {
+    const parsed = tryParseJson(candidate);
+    if (parsed) return parsed;
   }
+
+  console.error("[Groq] JSON parse failed after repair attempt");
+  return null;
 }
 
 async function runStructuredPrompt<T>(systemPrompt: string, userPrompt: string, maxTokens = 1800): Promise<T | null> {
   const client = getClient();
   if (!client) return null;
 
-  const response = await client.chat.completions.create({
-    model: DEFAULT_MODEL,
-    temperature: 0.2,
-    max_tokens: maxTokens,
-    messages: [
-      { role: "system", content: `${systemPrompt}\nALWAYS respond with strictly valid minified JSON and nothing else.` },
-      { role: "user", content: userPrompt },
-    ],
-  });
+  try {
+    const response = await client.chat.completions.create({
+      model: DEFAULT_MODEL,
+      temperature: 0.2,
+      max_tokens: maxTokens,
+      messages: [
+        { role: "system", content: `${systemPrompt}\nALWAYS respond with strictly valid minified JSON and nothing else.` },
+        { role: "user", content: userPrompt },
+      ],
+    });
 
-  const text = response.choices?.[0]?.message?.content ?? undefined;
-  return extractJson(text) as T | null;
+    const text = response.choices?.[0]?.message?.content ?? undefined;
+    return extractJson(text) as T | null;
+  } catch (error) {
+    console.error("[Groq] request failed", error);
+    return null;
+  }
 }
 
 export function isGroqReady(): boolean {

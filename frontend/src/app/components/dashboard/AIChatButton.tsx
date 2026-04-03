@@ -1,8 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { openBotpressChat } from "../../../lib/botpress";
-import { formatPatientSummary } from "../../../lib/patientSummary";
 
 const SUGGESTIONS = [
   "Explain my health score",
@@ -14,13 +13,9 @@ const SUGGESTIONS = [
 export function AIChatButton() {
   const { twin } = useDigitalTwin();
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const summarySignature = useMemo(() => (twin ? formatPatientSummary(twin) : null), [twin]);
-  const [lastContextSignature, setLastContextSignature] = useState<string | null>(null);
 
   const launchChat = (question?: string) => {
-    const needsContext = summarySignature !== lastContextSignature;
-    openBotpressChat({ twin: twin ?? undefined, question, forceContext: needsContext });
-    if (summarySignature) setLastContextSignature(summarySignature);
+    openBotpressChat({ twin: twin ?? undefined, question });
     setShowSuggestions(false);
   };
 

@@ -13,6 +13,7 @@
     "@botpress/runtime": "^1.17.0"
   },
   "devDependencies": {
+    "@botpress/cli": "^6.3.2",
     "@botpress/adk": "^1.17.0",
     "typescript": "^5.9.3"
   }
