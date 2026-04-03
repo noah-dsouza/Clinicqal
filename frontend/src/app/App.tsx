@@ -10,10 +10,10 @@ function AppContent() {
   const { twin } = useDigitalTwin();
   const [screen, setScreen] = useState<Screen>("login");
 
-  // Once twin is set go to dashboard
+  // Go to dashboard only after completing intake (not from cached session on login screen)
   useEffect(() => {
-    if (twin) setScreen("dashboard");
-  }, [twin]);
+    if (twin && screen === "intake") setScreen("dashboard");
+  }, [twin, screen]);
 
   if (screen === "login") {
     return (
