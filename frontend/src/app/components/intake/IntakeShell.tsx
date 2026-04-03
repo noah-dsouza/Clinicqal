@@ -8,6 +8,7 @@ import { Step5Vitals } from "./steps/Step5Vitals";
 import { Step6Lifestyle } from "./steps/Step6Lifestyle";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { HealthDocumentUpload } from "../shared/HealthDocumentUpload";
+import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 
 interface IntakeShellProps {
   onComplete: () => void;
@@ -24,7 +25,22 @@ const STEP_LABELS: Record<IntakeStep, string> = {
 
 export function IntakeShell({ onComplete }: IntakeShellProps) {
   const form = useIntakeForm(onComplete);
+  const { setTwin } = useDigitalTwin();
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [loadingDemo, setLoadingDemo] = useState(false);
+
+  const loadDemoPatient = async () => {
+    setLoadingDemo(true);
+    try {
+      const res = await fetch("/api/demo/patient");
+      const { twin } = await res.json();
+      setTwin(twin);
+    } catch {
+      // silently ignore
+    } finally {
+      setLoadingDemo(false);
+    }
+  };
 
   const stepNumbers: IntakeStep[] = [1, 2, 3, 4, 5, 6];
 
@@ -95,6 +111,26 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
             Or upload health documents
           </button>
           <span className="text-xs text-[#9CA3AF]">Auto-fills your profile with AI</span>
+          <button
+            onClick={loadDemoPatient}
+            disabled={loadingDemo}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60"
+            style={{
+              background: "rgba(13,148,136,0.08)",
+              color: "#0D9488",
+              border: "1px solid rgba(13,148,136,0.2)",
+            }}
+          >
+            {loadingDemo ? (
+              <span className="w-3 h-3 border border-[#0D9488] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            )}
+            Load Demo Patient
+          </button>
         </div>
 
         {/* Step Progress */}

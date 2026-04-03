@@ -8,6 +8,7 @@ import eligibilityRouter from "./routes/eligibility";
 import twinRouter from "./routes/twin";
 import uploadRouter from "./routes/upload";
 import chatRouter from "./routes/chat";
+import demoRouter from "./routes/demo";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -49,6 +50,7 @@ app.use("/api/eligibility", eligibilityRouter);
 app.use("/api/twin", twinRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/demo", demoRouter);
 
 // ── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {
