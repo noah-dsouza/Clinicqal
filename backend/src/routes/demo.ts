@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { buildDigitalTwin } from "../services/digitalTwinBuilder";
+import { sessionStore } from "../services/sessionStore";
 import { IntakeFormData } from "../types/intake";
 
 const router = Router();
@@ -68,6 +69,8 @@ const DEMO_INTAKE: IntakeFormData = {
 router.get("/patient", async (_req: Request, res: Response) => {
   try {
     const twin = await buildDigitalTwin(DEMO_INTAKE, "demo-session");
+    // Store in session so trials search can find it
+    sessionStore.set("demo-session", twin);
     res.json({ twin, session_id: "demo-session" });
   } catch (err) {
     console.error("[Demo Error]", err);

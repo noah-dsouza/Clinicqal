@@ -9,6 +9,7 @@ import twinRouter from "./routes/twin";
 import uploadRouter from "./routes/upload";
 import chatRouter from "./routes/chat";
 import demoRouter from "./routes/demo";
+import doctorsRouter from "./routes/doctors";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -51,6 +52,7 @@ app.use("/api/twin", twinRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/demo", demoRouter);
+app.use("/api/doctors", doctorsRouter);
 
 // ── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {

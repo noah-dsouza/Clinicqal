@@ -1,7 +1,21 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { motion, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { DigitalTwin } from "../../../types/digitalTwin";
+
+interface DoctorResult {
+  id: string;
+  name: string;
+  specialty: string;
+  address: string;
+  phone: string;
+  rating?: number;
+  reviews?: number;
+  website?: string;
+  accepting_patients: boolean;
+  distance?: string;
+  source: string;
+}
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -744,157 +758,65 @@ function ProviderMatchCard({ provider, expanded, onToggle }: { provider: Provide
   );
 }
 
-// ─── AI Assistant Panel ──────────────────────────────────────────────────────
+// ─── Real Doctor Card ─────────────────────────────────────────────────────────
 
-const AI_STARTERS = [
-  "Why are these trials recommended for me?",
-  "What questions should I ask a trial coordinator?",
-  "Which specialist should I see first?",
-  "How can I improve my trial eligibility?",
-  "What do my lab results mean for these matches?",
-];
-
-function getAIResponse(question: string, twin: DigitalTwin): string {
-  const cond = twin.intake.diagnosis.primary_condition;
-  const q = question.toLowerCase();
-  if (q.includes("trial") && q.includes("recommend")) {
-    return `These trials were matched based on your diagnosis of **${cond}**, your ECOG performance status of **${twin.ecog_estimate}**, and your current lab values. The matching algorithm considers inclusion criteria like age, diagnosis stage, organ function, and prior treatments. Higher match scores indicate more criteria aligned with your profile.`;
-  }
-  if (q.includes("questions") && (q.includes("trial") || q.includes("coordinator"))) {
-    return `Great question. When speaking with a trial coordinator, ask: (1) What are the study visits and time commitment? (2) Is travel reimbursed? (3) What happens if I need to stop the trial? (4) Will my regular doctor be kept informed? (5) What are the most common side effects? (6) Is there a placebo group, and what are my chances of receiving active treatment?`;
-  }
-  if (q.includes("specialist") || q.includes("doctor") || q.includes("first")) {
-    return `Based on your profile, I'd suggest starting with your **primary care physician** for a referral coordination plan. For your specific condition (${cond}), an early appointment with the matched specialist would be most impactful. Bring your lab results, medication list, and any imaging reports to the first visit.`;
-  }
-  if (q.includes("eligibility") || q.includes("improve")) {
-    return `Your trial eligibility can improve by: optimizing your ECOG performance status through light exercise, stabilizing any abnormal lab values (especially renal and hepatic function), and ensuring adequate wash-out periods from recent treatments. Speak with your oncologist before making any medication changes specifically for trial eligibility.`;
-  }
-  if (q.includes("lab") || q.includes("result")) {
-    const labs = twin.intake.labs;
-    if (labs.length === 0) return "No labs are on file yet. Upload or enter your lab results so I can give you a more specific analysis of how they affect your trial eligibility.";
-    const abnormal = labs.filter(l => (l.reference_low !== undefined && l.value < l.reference_low) || (l.reference_high !== undefined && l.value > l.reference_high));
-    if (abnormal.length > 0) {
-      return `You have ${abnormal.length} lab value(s) outside the reference range: ${abnormal.map(l => `**${l.name}** (${l.value} ${l.unit})`).join(", ")}. These can affect trial eligibility, particularly for organ function criteria. I recommend discussing these with your specialist before applying to trials.`;
-    }
-    return `Your recorded lab values appear within acceptable ranges. This is favorable for most trials — many require adequate organ function (renal, hepatic, hematologic) as a baseline. Continue monitoring and bring recent results to any trial screening appointment.`;
-  }
-  return `Based on your health profile for **${cond}**, I can help you navigate your options. The trials and providers shown were matched specifically to your data. Would you like me to explain any specific trial or provider recommendation in more detail? You can also ask about next steps, questions to ask your doctor, or how to prepare for a trial screening.`;
-}
-
-function AIAssistantPanel({ twin, onClose }: { twin: DigitalTwin; onClose: () => void }) {
-  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    {
-      role: "ai",
-      text: `Hi! I'm your care navigator. I can explain why specific trials or providers were matched to you, help you prepare for appointments, and guide your next steps. What would you like to know about your matches?`,
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const send = (text: string) => {
-    if (!text.trim()) return;
-    const userMsg = { role: "user" as const, text };
-    const aiMsg = { role: "ai" as const, text: getAIResponse(text, twin) };
-    setMessages((prev) => [...prev, userMsg, aiMsg]);
-    setInput("");
-  };
-
+function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
   return (
-    <div
-      className="fixed right-0 top-0 h-full w-full sm:w-[380px] z-50 flex flex-col"
-      style={{ background: "#0F172A", borderLeft: "1px solid rgba(167,139,250,0.2)" }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3.5 border-b border-[rgba(255,255,255,0.06)]"
-        style={{ background: "rgba(167,139,250,0.06)" }}>
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.3)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="#A78BFA" strokeWidth="1.5" />
-              <path d="M12 16v-4M12 8h.01" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+    <TiltCard active={false} borderColor="rgba(20,184,166,0.15)" bg="#1E293B">
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center text-sm font-bold"
+            style={{ background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
+            {doctor.name.split(" ").filter((w: string) => w.startsWith("Dr") || w.length > 1).slice(1, 3).map((w: string) => w[0]).join("")}
           </div>
-          <div>
-            <p className="text-sm font-semibold text-[#F1F5F9]">Care Navigator AI</p>
-            <p className="text-[10px] text-[#64748B]">Explains your matches & next steps</p>
-          </div>
-        </div>
-        <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-[#64748B] hover:text-[#F1F5F9] hover:bg-[rgba(255,255,255,0.06)] transition-colors">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className="max-w-[85%] px-3 py-2.5 rounded-2xl text-xs leading-relaxed"
-              style={
-                m.role === "user"
-                  ? { background: "rgba(20,184,166,0.15)", color: "#CBD5E1", border: "1px solid rgba(20,184,166,0.25)", borderBottomRightRadius: 4 }
-                  : { background: "rgba(167,139,250,0.08)", color: "#CBD5E1", border: "1px solid rgba(167,139,250,0.15)", borderBottomLeftRadius: 4 }
-              }
-            >
-              {m.text.split("**").map((part, j) =>
-                j % 2 === 1 ? <strong key={j} style={{ color: "#F1F5F9" }}>{part}</strong> : part
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-[#F1F5F9] mb-0.5 truncate">{doctor.name}</h3>
+            <p className="text-xs text-[#14B8A6] mb-1">{doctor.specialty}</p>
+            <div className="flex items-center gap-3 flex-wrap">
+              {doctor.rating && (
+                <span className="text-[10px] text-[#FBBF24]">★ {doctor.rating.toFixed(1)}{doctor.reviews ? ` (${doctor.reviews})` : ""}</span>
               )}
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full"
+                style={{ background: doctor.accepting_patients ? "rgba(52,211,153,0.12)" : "rgba(248,113,113,0.12)", color: doctor.accepting_patients ? "#34D399" : "#F87171" }}>
+                {doctor.accepting_patients ? "Accepting patients" : "Not accepting"}
+              </span>
+              {doctor.distance && <span className="text-[10px] text-[#64748B]">{doctor.distance}</span>}
             </div>
           </div>
-        ))}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Starters */}
-      {messages.length <= 1 && (
-        <div className="px-4 pb-3">
-          <p className="text-[10px] text-[#64748B] mb-2 uppercase tracking-wider">Quick questions</p>
-          <div className="flex flex-col gap-1.5">
-            {AI_STARTERS.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => send(s)}
-                className="text-left px-3 py-2 rounded-xl text-xs text-[#94A3B8] hover:text-[#F1F5F9] transition-colors"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-              >
-                {s}
-              </button>
-            ))}
+        </div>
+        <div className="mt-3 space-y-1">
+          <p className="text-[10px] text-[#64748B] flex items-center gap-1.5">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2"/></svg>
+            {doctor.address}
+          </p>
+          <p className="text-[10px] text-[#94A3B8] flex items-center gap-1.5">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.44 2 2 0 0 1 3.55 1.25h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17" stroke="#94A3B8" strokeWidth="2"/></svg>
+            {doctor.phone}
+          </p>
+        </div>
+        <div className="mt-3 flex gap-2">
+          {doctor.website ? (
+            <a href={doctor.website} target="_blank" rel="noopener noreferrer"
+              className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
+              style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
+              View Profile ↗
+            </a>
+          ) : (
+            <div className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
+              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}>
+              No website
+            </div>
+          )}
+          <div className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
+            style={{ background: "rgba(96,165,250,0.1)", color: "#60A5FA", border: "1px solid rgba(96,165,250,0.2)" }}>
+            {doctor.phone}
           </div>
         </div>
-      )}
-
-      {/* Input */}
-      <div className="px-4 py-3 border-t border-[rgba(255,255,255,0.06)]">
-        <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about your matches..."
-            className="flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl px-3 py-2 text-xs text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(167,139,250,0.4)] transition-colors"
-          />
-          <button
-            type="submit"
-            className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
-            style={{ background: "rgba(167,139,250,0.2)", border: "1px solid rgba(167,139,250,0.3)" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </form>
       </div>
-    </div>
+    </TiltCard>
   );
 }
+
 
 // ─── Main Page ──────────────────────────────────────────────────────────────
 
@@ -902,14 +824,18 @@ export function FindSupport() {
   const { twin } = useDigitalTwin();
   const [activeSection, setActiveSection] = useState<"trials" | "care">("trials");
   const [expandedTrial, setExpandedTrial] = useState<string | null>(null);
-  const [expandedProvider, setExpandedProvider] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterCategory>("all");
-  const [aiOpen, setAiOpen] = useState(false);
+
+  // Doctor search state
+  const [locationInput, setLocationInput] = useState("");
+  const [locationSubmitted, setLocationSubmitted] = useState("");
+  const [doctors, setDoctors] = useState<DoctorResult[]>([]);
+  const [doctorsLoading, setDoctorsLoading] = useState(false);
+  const [doctorsError, setDoctorsError] = useState<string | null>(null);
 
   if (!twin) return null;
 
   const trials = generateTrials(twin);
-  const providers = generateProviders(twin);
 
   const filteredTrials = trials.filter((t) => {
     if (filter === "high") return t.matchScore >= 80;
@@ -918,30 +844,36 @@ export function FindSupport() {
     return true;
   });
 
+  const searchDoctors = async (loc: string) => {
+    if (!loc.trim()) return;
+    setDoctorsLoading(true);
+    setDoctorsError(null);
+    setLocationSubmitted(loc.trim());
+    try {
+      const params = new URLSearchParams({
+        condition: twin.intake.diagnosis.primary_condition,
+        location: loc.trim(),
+      });
+      const res = await fetch(`/api/doctors/search?${params.toString()}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Search failed");
+      setDoctors(data.doctors ?? []);
+    } catch (err) {
+      setDoctorsError(err instanceof Error ? err.message : "Search failed");
+    } finally {
+      setDoctorsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ background: "#0F172A" }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 className="text-xl font-bold text-[#F1F5F9]">Find Support</h1>
-              <p className="text-xs text-[#64748B] mt-0.5">
-                Matched trials & care providers based on your health profile
-              </p>
-            </div>
-            <button
-              onClick={() => setAiOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
-              style={{ background: "rgba(167,139,250,0.12)", color: "#A78BFA", border: "1px solid rgba(167,139,250,0.25)" }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              Care Navigator AI
-            </button>
-          </div>
+          <h1 className="text-xl font-bold text-[#F1F5F9]">Find Support</h1>
+          <p className="text-xs text-[#64748B] mt-0.5">
+            Live trials & real doctor search based on your health profile
+          </p>
 
           {/* Health summary strip */}
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -949,16 +881,18 @@ export function FindSupport() {
               { label: "Condition", value: twin.intake.diagnosis.primary_condition.split(" ").slice(0, 3).join(" "), color: "#14B8A6" },
               { label: "ECOG Status", value: `${twin.ecog_estimate} — ${["Fully active", "Light work", "Self-care only", "Limited self-care", "Bedridden"][twin.ecog_estimate] ?? "—"}`, color: twin.ecog_estimate <= 1 ? "#34D399" : twin.ecog_estimate <= 2 ? "#FBBF24" : "#F87171" },
               { label: "Trial Matches", value: `${trials.length} found`, color: "#60A5FA" },
-              { label: "Care Matches", value: `${providers.length} providers`, color: "#A78BFA" },
+              { label: "Doctors Found", value: doctors.length > 0 ? `${doctors.length} results` : "Enter location", color: "#A78BFA" },
             ].map((chip, i) => (
-              <div
+              <motion.div
                 key={i}
                 className="rounded-xl px-3 py-2.5 border"
                 style={{ background: `${chip.color}0d`, borderColor: `${chip.color}20` }}
+                whileHover={{ scale: 1.03, borderColor: `${chip.color}40` }}
+                transition={{ type: "spring", stiffness: 400, damping: 22 }}
               >
                 <p className="text-[9px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: `${chip.color}99` }}>{chip.label}</p>
                 <p className="text-xs font-bold truncate" style={{ color: chip.color }}>{chip.value}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -967,12 +901,15 @@ export function FindSupport() {
         <div className="flex items-center gap-1 mb-4 p-1 rounded-xl w-fit" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
           {[
             { id: "trials" as const, label: "Clinical Trial Matches", count: filteredTrials.length },
-            { id: "care" as const, label: "Care Team Matches", count: providers.length },
+            { id: "care" as const, label: "Find Doctors Near Me", count: doctors.length },
           ].map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
               onClick={() => setActiveSection(tab.id)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
               style={
                 activeSection === tab.id
                   ? { background: tab.id === "trials" ? "rgba(96,165,250,0.15)" : "rgba(20,184,166,0.15)", color: tab.id === "trials" ? "#60A5FA" : "#14B8A6", border: `1px solid ${tab.id === "trials" ? "rgba(96,165,250,0.3)" : "rgba(20,184,166,0.3)"}` }
@@ -986,7 +923,7 @@ export function FindSupport() {
               >
                 {tab.count}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -995,10 +932,13 @@ export function FindSupport() {
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Filter:</span>
             {(["all", "high", "medium", "low"] as FilterCategory[]).map((f) => (
-              <button
+              <motion.button
                 key={f}
                 onClick={() => setFilter(f)}
-                className="px-3 py-1 rounded-full text-[10px] font-semibold transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="px-3 py-1 rounded-full text-[10px] font-semibold"
                 style={
                   filter === f
                     ? { background: f === "all" ? "rgba(96,165,250,0.2)" : f === "high" ? "rgba(52,211,153,0.2)" : f === "medium" ? "rgba(251,191,36,0.2)" : "rgba(248,113,113,0.2)", color: f === "all" ? "#60A5FA" : f === "high" ? "#34D399" : f === "medium" ? "#FBBF24" : "#F87171", border: `1px solid ${f === "all" ? "rgba(96,165,250,0.4)" : f === "high" ? "rgba(52,211,153,0.4)" : f === "medium" ? "rgba(251,191,36,0.4)" : "rgba(248,113,113,0.4)"}` }
@@ -1006,7 +946,7 @@ export function FindSupport() {
                 }
               >
                 {f === "all" ? "All Matches" : f === "high" ? "High Match (80+)" : f === "medium" ? "Good Match (60–79)" : "Possible (< 60)"}
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
@@ -1015,7 +955,7 @@ export function FindSupport() {
         <div className="mb-4 px-3 py-2.5 rounded-xl" style={{ background: "rgba(248,113,113,0.05)", border: "1px solid rgba(248,113,113,0.12)" }}>
           <p className="text-[10px] text-[#94A3B8] leading-relaxed">
             <span className="text-[#F87171] font-semibold">Disclaimer: </span>
-            These recommendations are for informational and research support purposes only. They do not constitute medical advice. Always consult a qualified healthcare provider before making decisions about trials or treatment.
+            Informational only. Does not constitute medical advice. Always consult a qualified healthcare provider.
           </p>
         </div>
 
@@ -1023,9 +963,7 @@ export function FindSupport() {
         {activeSection === "trials" && (
           <div className="space-y-3">
             {filteredTrials.length === 0 ? (
-              <div className="py-16 text-center text-[#64748B] text-sm">
-                No trials match this filter. Try "All Matches".
-              </div>
+              <div className="py-16 text-center text-[#64748B] text-sm">No trials match this filter.</div>
             ) : (
               filteredTrials.map((trial, i) => (
                 <motion.div
@@ -1045,34 +983,100 @@ export function FindSupport() {
           </div>
         )}
 
-        {/* Provider Cards */}
+        {/* Doctor Search */}
         {activeSection === "care" && (
-          <div className="space-y-3">
-            {providers.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <ProviderMatchCard
-                  provider={p}
-                  expanded={expandedProvider === p.id}
-                  onToggle={() => setExpandedProvider(expandedProvider === p.id ? null : p.id)}
+          <div>
+            {/* Location search bar */}
+            <form
+              onSubmit={(e) => { e.preventDefault(); searchDoctors(locationInput); }}
+              className="flex gap-2 mb-5"
+            >
+              <div className="flex-1 relative">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2"/>
+                  <circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2"/>
+                </svg>
+                <input
+                  type="text"
+                  value={locationInput}
+                  onChange={(e) => setLocationInput(e.target.value)}
+                  placeholder={`Enter city, zip, or address to find ${twin.intake.diagnosis.primary_condition} specialists...`}
+                  className="w-full rounded-xl pl-9 pr-4 py-2.5 text-xs text-[#F1F5F9] placeholder-[#64748B] focus:outline-none"
+                  style={{ background: "#1E293B", border: "1px solid rgba(255,255,255,0.08)" }}
                 />
-              </motion.div>
-            ))}
+              </div>
+              <motion.button
+                type="submit"
+                disabled={doctorsLoading}
+                whileHover={!doctorsLoading ? { scale: 1.05, boxShadow: "0 0 16px rgba(20,184,166,0.35)" } : {}}
+                whileTap={!doctorsLoading ? { scale: 0.95 } : {}}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
+                style={{ background: "#14B8A6", color: "#fff" }}
+              >
+                {doctorsLoading ? "Searching..." : "Search"}
+              </motion.button>
+            </form>
+
+            {/* Results */}
+            <AnimatePresence mode="wait">
+              {doctorsLoading && (
+                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-16 text-center">
+                  <div className="flex justify-center gap-1 mb-3">
+                    {[0,1,2].map((i) => (
+                      <motion.div key={i} className="w-2 h-2 rounded-full bg-[#14B8A6]"
+                        animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }} />
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#64748B]">Searching for specialists near you...</p>
+                </motion.div>
+              )}
+
+              {doctorsError && !doctorsLoading && (
+                <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 text-center">
+                  <p className="text-sm text-[#F87171] mb-2">Search error</p>
+                  <p className="text-xs text-[#64748B]">{doctorsError}</p>
+                </motion.div>
+              )}
+
+              {!doctorsLoading && !doctorsError && doctors.length > 0 && (
+                <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <p className="text-[10px] text-[#64748B] mb-3 uppercase tracking-wider">
+                    {doctors.length} {twin.intake.diagnosis.primary_condition} specialists near {locationSubmitted}
+                  </p>
+                  <div className="space-y-3">
+                    {doctors.map((doc, i) => (
+                      <motion.div
+                        key={doc.id}
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.06, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                      >
+                        <RealDoctorCard doctor={doc} />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {!doctorsLoading && !doctorsError && doctors.length === 0 && !locationSubmitted && (
+                <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3"
+                    style={{ background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.15)" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#14B8A6" strokeWidth="2"/>
+                      <circle cx="12" cy="10" r="3" stroke="#14B8A6" strokeWidth="2"/>
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-[#94A3B8] mb-1">Enter your location</p>
+                  <p className="text-xs text-[#64748B]">We'll find {twin.intake.diagnosis.primary_condition} specialists accepting new patients near you.</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
-
-      {/* AI Panel overlay */}
-      {aiOpen && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm" onClick={() => setAiOpen(false)} />
-          <AIAssistantPanel twin={twin} onClose={() => setAiOpen(false)} />
-        </>
-      )}
     </div>
   );
 }

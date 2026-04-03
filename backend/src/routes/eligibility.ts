@@ -63,9 +63,14 @@ router.post("/analyze-single", async (req: Request, res: Response): Promise<void
     });
   } catch (error) {
     console.error("[Eligibility] Analysis error:", error);
+    const msg = error instanceof Error ? error.message : "";
+    if (msg.includes("credit") || msg.includes("quota") || msg.includes("billing")) {
+      res.status(503).json({ error: "Anthropic account has no credits. Add credits at console.anthropic.com to enable AI eligibility analysis." });
+      return;
+    }
     res.status(500).json({
       error: "Eligibility analysis failed",
-      details: error instanceof Error ? error.message : "Unknown error",
+      details: msg || "Unknown error",
     });
   }
 });

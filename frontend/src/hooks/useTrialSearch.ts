@@ -32,7 +32,9 @@ export function useTrialSearch(): UseTrialSearchReturn {
       setError(null);
 
       try {
-        const result = await searchTrials(sessionId, condition, 20);
+        // Always pass condition explicitly as fallback in case session expired on backend
+        const effectiveCondition = condition || twin?.intake.diagnosis.primary_condition;
+        const result = await searchTrials(sessionId, effectiveCondition, 20);
         setTrials(result.trials);
         setTotal(result.total);
         setSearchCondition(result.condition);

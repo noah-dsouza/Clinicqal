@@ -74,7 +74,14 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
 
     const reply = response.content[0].type === "text" ? response.content[0].text : "I couldn't generate a response.";
     res.json({ reply });
-  } catch (err) {
+  } catch (err: unknown) {
+    const message_text = (err as { message?: string }).message ?? "";
+    // Credit exhausted or quota — fall back gracefully rather than 500
+    if (message_text.includes("credit") || message_text.includes("quota") || message_text.includes("billing")) {
+      const reply = getRuleBasedReply((req.body as { message: string }).message, (req.body as { twin?: DigitalTwin }).twin ?? null);
+      res.json({ reply });
+      return;
+    }
     console.error("[Chat Error]", err);
     res.status(500).json({ error: "Failed to generate response" });
   }

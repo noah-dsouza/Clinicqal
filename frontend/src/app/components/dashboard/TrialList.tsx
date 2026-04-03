@@ -72,16 +72,10 @@ export function TrialList() {
           <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#FBBF24" strokeWidth="2" /><line x1="12" y1="8" x2="12" y2="12" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="#FBBF24" strokeWidth="3" strokeLinecap="round" /></svg>
           </div>
-          {error.includes("session_id") || error.includes("condition") ? (
-            <div className="max-w-sm mx-auto">
-              <p className="text-sm font-medium text-[#F1F5F9] mb-1">Backend API key not configured</p>
-              <p className="text-xs text-[#94A3B8] mb-3 leading-relaxed">
-                The clinical trials search requires a Claude API key in your backend <code className="text-[#14B8A6]">.env</code> file. Add your key and restart the backend server to enable live trial search.
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-[#94A3B8] mb-3">{error}</p>
-          )}
+          <div className="max-w-sm mx-auto">
+            <p className="text-sm font-medium text-[#F1F5F9] mb-1">Search failed</p>
+            <p className="text-xs text-[#94A3B8] mb-3 leading-relaxed">{error}</p>
+          </div>
           <motion.button
             onClick={() => runSearch()}
             whileHover={{ scale: 1.05 }}

@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 interface Message {
   role: "user" | "ai";
@@ -10,29 +8,7 @@ interface Message {
   ts: number;
 }
 
-// ── Mock AI responder (replace with real API when key is ready) ──────────────
-
-function getResponse(q: string, ctx: string): string {
-  const lower = q.toLowerCase();
-  if (lower.includes("trial") || lower.includes("clinical")) {
-    return "Based on your health profile, you may qualify for several clinical trials. Head to the **Find Support** tab to see your matched trials with eligibility scores. I can explain any specific trial in detail.";
-  }
-  if (lower.includes("diet") || lower.includes("food") || lower.includes("eat")) {
-    return "Nutrition plays a critical role in your health management. Based on your profile, I'd suggest focusing on anti-inflammatory foods, limiting processed sugars, and staying hydrated. A registered dietitian match is available in your **Care Team** tab.";
-  }
-  if (lower.includes("med") || lower.includes("medication") || lower.includes("drug")) {
-    return "Your current medications are tracked in your health profile. For questions about interactions or adjustments, please consult your prescribing physician. Your Care Team matches include specialists who can review your medication regimen.";
-  }
-  if (lower.includes("score") || lower.includes("health")) {
-    return `Your overall health score reflects key indicators from your vitals, labs, and lifestyle data. The sub-scores (cardiovascular, metabolic, functional) help identify which areas need the most attention. ${ctx.includes("Diagnosis:") ? "Your current diagnosis is factored into these scores." : ""}`;
-  }
-  if (lower.includes("doctor") || lower.includes("specialist") || lower.includes("provider")) {
-    return "Your **Find Support** tab shows Care Team matches based on your health profile — including primary care, specialists, and allied health professionals relevant to your condition. Each match includes contact details and telehealth availability.";
-  }
-  return `I'm here to help you navigate your health data and care options. ${ctx ? "I can see your health profile and can answer questions about your scores, matched trials, care team options, or next steps." : "Complete your health profile first so I can give you personalized guidance."}`;
-}
-
-// ── Orb pulse animation ──────────────────────────────────────────────────────
+// ── Orb pulse ────────────────────────────────────────────────────────────────
 
 function OrbPulse({ active }: { active: boolean }) {
   return (
@@ -50,68 +26,97 @@ function OrbPulse({ active }: { active: boolean }) {
   );
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
+// ── Typing dots ───────────────────────────────────────────────────────────────
+
+function TypingDots() {
+  return (
+    <div className="flex gap-1 items-center px-3 py-2 rounded-xl w-fit"
+      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ background: "#64748B" }}
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function AIChatButton() {
   const { twin } = useDigitalTwin();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const ctx = useMemo(() => {
-    if (!twin) return "";
-    return `Diagnosis: ${twin.intake.diagnosis.primary_condition}, Score: ${twin.health_score.overall}/100, ECOG: ${twin.ecog_estimate}`;
-  }, [twin]);
-
-  const greet = useMemo(() => {
-    if (!twin) return "Hi! Complete your health profile and I can help you navigate your results, trials, and care options.";
-    return `Hi! I can see your profile — ${twin.intake.diagnosis.primary_condition}, health score ${twin.health_score.overall}/100. What would you like to know?`;
-  }, [twin]);
+  const greet = twin
+    ? `Hi! I can see your profile — ${twin.intake.diagnosis.primary_condition}, health score ${twin.health_score.overall}/100. What would you like to know?`
+    : "Hi! Complete your health profile and I can help you navigate your results, trials, and care options.";
 
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([{ role: "ai", text: greet, ts: Date.now() }]);
     }
-  }, [greet]);
+  }, [greet]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (open) {
-      setTimeout(() => textareaRef.current?.focus(), 150);
-    }
+    if (open) setTimeout(() => textareaRef.current?.focus(), 150);
   }, [open]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const send = useCallback(() => {
-    const text = input.trim();
-    if (!text) return;
-    const userMsg: Message = { role: "user", text, ts: Date.now() };
-    const aiMsg: Message = { role: "ai", text: getResponse(text, ctx), ts: Date.now() + 1 };
-    setMessages((prev) => [...prev, userMsg, aiMsg]);
+  const send = useCallback(async (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg || isTyping) return;
+
+    const userMsg: Message = { role: "user", text: msg, ts: Date.now() };
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
-  }, [input, ctx]);
+    setIsTyping(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg, twin }),
+      });
+      const data = await res.json();
+      const aiMsg: Message = {
+        role: "ai",
+        text: data.reply ?? "I couldn't generate a response right now.",
+        ts: Date.now(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", text: "Connection error — make sure the backend is running.", ts: Date.now() },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
+  }, [input, twin, isTyping]);
 
   const handleKey = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     if (e.key === "Escape") setOpen(false);
   };
 
@@ -135,7 +140,7 @@ export function AIChatButton() {
             className="flex flex-col rounded-2xl overflow-hidden shadow-2xl"
             style={{
               width: 340,
-              height: 440,
+              height: 460,
               background: "#0F172A",
               border: "1px solid rgba(20,184,166,0.2)",
               boxShadow: "0 0 40px rgba(20,184,166,0.08), 0 20px 60px rgba(0,0,0,0.5)",
@@ -146,11 +151,16 @@ export function AIChatButton() {
               <OrbPulse active />
               <div className="flex-1">
                 <p className="text-xs font-semibold text-[#F1F5F9]">ClinIQ AI</p>
-                <p className="text-[10px] text-[#64748B]">Health navigator</p>
+                <p className="text-[10px] text-[#64748B]">Powered by Claude · Health navigator</p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B] hover:text-[#94A3B8] transition-colors">
+              <motion.button
+                onClick={() => setOpen(false)}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                className="text-[#64748B] hover:text-[#94A3B8]"
+              >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-              </button>
+              </motion.button>
             </div>
 
             {/* Messages */}
@@ -177,18 +187,31 @@ export function AIChatButton() {
                 </motion.div>
               ))}
 
+              {/* Typing indicator */}
+              {isTyping && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-start"
+                >
+                  <TypingDots />
+                </motion.div>
+              )}
+
               {/* Quick starters */}
-              {messages.length <= 1 && (
+              {messages.length <= 1 && !isTyping && (
                 <div className="flex flex-col gap-1.5 mt-2">
                   {STARTERS.map((s, i) => (
-                    <button
+                    <motion.button
                       key={i}
-                      onClick={() => { setInput(s); setTimeout(send, 10); }}
-                      className="text-left px-3 py-2 rounded-xl text-[10px] transition-colors"
+                      onClick={() => send(s)}
+                      whileHover={{ scale: 1.02, borderColor: "rgba(20,184,166,0.25)" }}
+                      whileTap={{ scale: 0.97 }}
+                      className="text-left px-3 py-2 rounded-xl text-[10px]"
                       style={{ background: "rgba(255,255,255,0.03)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.06)" }}
                     >
                       {s}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               )}
@@ -203,20 +226,24 @@ export function AIChatButton() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKey}
+                  disabled={isTyping}
                   placeholder="Ask about your health..."
                   rows={1}
-                  className="flex-1 resize-none rounded-xl px-3 py-2 text-xs text-[#F1F5F9] placeholder-[#64748B] focus:outline-none transition-colors"
+                  className="flex-1 resize-none rounded-xl px-3 py-2 text-xs text-[#F1F5F9] placeholder-[#64748B] focus:outline-none disabled:opacity-50"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", maxHeight: 80 }}
                 />
-                <button
-                  onClick={send}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                <motion.button
+                  onClick={() => send()}
+                  disabled={isTyping || !input.trim()}
+                  whileHover={!isTyping ? { scale: 1.1, boxShadow: "0 0 12px rgba(20,184,166,0.35)" } : {}}
+                  whileTap={!isTyping ? { scale: 0.9 } : {}}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 disabled:opacity-40"
                   style={{ background: "rgba(20,184,166,0.2)", border: "1px solid rgba(20,184,166,0.3)" }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                     <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </button>
+                </motion.button>
               </div>
               <p className="text-[9px] text-[#475569] mt-1.5 text-center">Enter to send · Informational only</p>
             </div>
@@ -224,7 +251,7 @@ export function AIChatButton() {
         )}
       </AnimatePresence>
 
-      {/* Floating trigger button — morphs open/closed */}
+      {/* Floating trigger */}
       <motion.button
         onClick={() => setOpen((o) => !o)}
         whileHover={{ scale: 1.05 }}
@@ -235,9 +262,7 @@ export function AIChatButton() {
         style={{
           height: 44,
           padding: open ? "0 10px" : "0 16px",
-          background: open
-            ? "rgba(15,23,42,0.9)"
-            : "linear-gradient(135deg, #0D9488, #22C55E)",
+          background: open ? "rgba(15,23,42,0.9)" : "linear-gradient(135deg, #0D9488, #22C55E)",
           border: open ? "1px solid rgba(20,184,166,0.3)" : "none",
           boxShadow: open ? "0 0 20px rgba(20,184,166,0.15)" : "0 0 24px rgba(20,184,166,0.35)",
         }}
