@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { isLabAbnormal } from "../../../lib/utils";
 
 interface BiomarkerCardProps {
@@ -38,7 +39,18 @@ export function BiomarkerCard({ name, value, unit, referenceLow, referenceHigh, 
   }
 
   return (
-    <div className="rounded-xl p-3 border transition-all duration-150" style={{ background: colors.bg, borderColor: colors.border }}>
+    <motion.div
+      className="rounded-xl p-3 border"
+      style={{ background: colors.bg, borderColor: colors.border }}
+      whileHover={{
+        scale: 1.03,
+        y: -2,
+        borderColor: colors.text,
+        boxShadow: `0 8px 24px ${colors.text}18`,
+      }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 24 }}
+    >
       <div className="flex items-start justify-between mb-2">
         <div>
           <p className="text-xs font-medium text-[#94A3B8] truncate max-w-[110px]">{name}</p>
@@ -74,6 +86,6 @@ export function BiomarkerCard({ name, value, unit, referenceLow, referenceHigh, 
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

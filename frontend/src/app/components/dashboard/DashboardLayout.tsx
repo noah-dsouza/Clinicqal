@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { NavBar } from "./NavBar";
 import { HealthScoreGauge } from "./HealthScoreGauge";
 import { BodyVisualization } from "./BodyVisualization";
@@ -143,22 +144,28 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
 
             {/* Actions + Disclaimer */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
+              <motion.button
                 onClick={() => setShowUploadModal(true)}
-                className="py-3 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(20,184,166,0.15)" }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="py-3 rounded-xl text-xs font-medium flex items-center justify-center gap-2"
                 style={{ background: "rgba(20,184,166,0.08)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 Upload Document
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setActiveTab("trials")}
-                className="py-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02, boxShadow: "0 0 28px rgba(13,148,136,0.4)" }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
                 style={{ background: "linear-gradient(135deg, #0D9488, #22C55E)", color: "#fff", boxShadow: "0 0 16px rgba(13,148,136,0.25)" }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="2" /></svg>
                 Find Trials
-              </button>
+              </motion.button>
             </div>
 
             <div className="px-4 py-3 rounded-xl" style={{ background: "rgba(248,113,113,0.04)", border: "1px solid rgba(248,113,113,0.1)" }}>
@@ -220,29 +227,46 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
 
 function DarkCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl p-4 border" style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.07)" }}>
+    <motion.div
+      className="rounded-xl p-4 border"
+      style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.07)" }}
+      whileHover={{ borderColor: "rgba(255,255,255,0.13)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
+      transition={{ duration: 0.2 }}
+    >
       <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "#64748B" }}>{title}</h3>
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 function SummaryChip({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="rounded-xl p-3 border" style={{ background: `${color}0d`, borderColor: `${color}20` }}>
+    <motion.div
+      className="rounded-xl p-3 border"
+      style={{ background: `${color}0d`, borderColor: `${color}20` }}
+      whileHover={{ scale: 1.04, y: -2, boxShadow: `0 8px 20px ${color}18`, borderColor: `${color}50` }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 22 }}
+    >
       <p className="text-[9px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: `${color}99` }}>{label}</p>
       <p className="text-xs font-bold truncate" style={{ color }}>{value}</p>
-    </div>
+    </motion.div>
   );
 }
 
 function LifestyleChip({ label, value, good, bad }: { label: string; value: string; good: boolean; bad: boolean }) {
   const color = good ? "#34D399" : bad ? "#F87171" : "#FBBF24";
   return (
-    <div className="rounded-lg px-3 py-2.5 border" style={{ background: `${color}0d`, borderColor: `${color}20` }}>
+    <motion.div
+      className="rounded-lg px-3 py-2.5 border"
+      style={{ background: `${color}0d`, borderColor: `${color}20` }}
+      whileHover={{ scale: 1.04, y: -2, boxShadow: `0 6px 16px ${color}18`, borderColor: `${color}50` }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 22 }}
+    >
       <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: `${color}80` }}>{label}</p>
       <p className="text-xs font-semibold capitalize" style={{ color }}>{value.replace(/_/g, " ")}</p>
-    </div>
+    </motion.div>
   );
 }
 

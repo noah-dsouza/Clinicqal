@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 interface VitalSignCardProps {
   label: string;
@@ -34,9 +35,17 @@ export function VitalSignCard({ label, value, unit, normalLow, normalHigh, icon 
   const displayValue = value !== undefined && value !== null && value !== "" ? value : "—";
 
   return (
-    <div
-      className="rounded-xl p-3.5 border transition-all duration-200"
+    <motion.div
+      className="rounded-xl p-3.5 border"
       style={{ background: `${color}09`, borderColor: `${color}22` }}
+      whileHover={{
+        scale: 1.04,
+        y: -2,
+        borderColor: color,
+        boxShadow: `0 8px 24px ${color}20`,
+      }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 24 }}
     >
       <div className="flex items-start justify-between mb-2.5">
         <span className="text-[9px] font-semibold text-[#64748B] uppercase tracking-wide leading-tight">{label}</span>
@@ -66,6 +75,6 @@ export function VitalSignCard({ label, value, unit, normalLow, normalHigh, icon 
           <span className="text-[9px] capitalize" style={{ color }}>{status}</span>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

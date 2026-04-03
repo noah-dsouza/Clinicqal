@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { BiomarkerCard } from "./BiomarkerCard";
 import { IntakeFormData } from "../../../types/intake";
 
@@ -35,9 +36,12 @@ export function BiomarkerPanel({ labs }: BiomarkerPanelProps) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
-        <button
+        <motion.button
           onClick={() => setFilter("all")}
-          className="px-3 py-1 text-[10px] font-medium rounded-lg transition-colors"
+          whileHover={{ scale: 1.05, y: -1 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          className="px-3 py-1 text-[10px] font-medium rounded-lg"
           style={
             filter === "all"
               ? { background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.25)" }
@@ -45,10 +49,13 @@ export function BiomarkerPanel({ labs }: BiomarkerPanelProps) {
           }
         >
           All ({labs.length})
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={() => setFilter("abnormal")}
-          className="px-3 py-1 text-[10px] font-medium rounded-lg transition-colors"
+          whileHover={{ scale: 1.05, y: -1 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          className="px-3 py-1 text-[10px] font-medium rounded-lg"
           style={
             filter === "abnormal"
               ? { background: "rgba(248,113,113,0.12)", color: "#F87171", border: "1px solid rgba(248,113,113,0.25)" }
@@ -56,7 +63,7 @@ export function BiomarkerPanel({ labs }: BiomarkerPanelProps) {
           }
         >
           Abnormal ({abnormalLabs.length})
-        </button>
+        </motion.button>
       </div>
 
       {displayLabs.length === 0 ? (
@@ -77,13 +84,16 @@ export function BiomarkerPanel({ labs }: BiomarkerPanelProps) {
             ))}
           </div>
           {displayLabs.length > 9 && (
-            <button
+            <motion.button
               onClick={() => setShowAll(!showAll)}
-              className="mt-3 w-full py-2 text-[10px] rounded-lg transition-colors"
-              style={{ color: "#64748B", border: "1px solid rgba(255,255,255,0.07)" }}
+              whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)" }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="mt-3 w-full py-2 text-[10px] rounded-lg"
+              style={{ color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)" }}
             >
               {showAll ? "Show less" : `Show all ${displayLabs.length} results`}
-            </button>
+            </motion.button>
           )}
         </>
       )}

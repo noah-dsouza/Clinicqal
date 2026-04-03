@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { ClinicalTrial } from "../../../types/trial";
 import { TrialCard } from "./TrialCard";
 import { EligibilityDrawer } from "./EligibilityDrawer";
@@ -39,14 +40,17 @@ export function TrialList() {
               style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
             />
           </div>
-          <button
+          <motion.button
             type="submit"
             disabled={isLoading}
-            className="px-4 py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+            whileHover={!isLoading ? { scale: 1.05, boxShadow: "0 0 16px rgba(20,184,166,0.4)" } : {}}
+            whileTap={!isLoading ? { scale: 0.95 } : {}}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
             style={{ background: "#14B8A6", color: "#fff" }}
           >
             Search
-          </button>
+          </motion.button>
         </form>
         {(searchCondition || total > 0) && (
           <p className="text-[10px] text-[#64748B] mt-2">
@@ -78,9 +82,16 @@ export function TrialList() {
           ) : (
             <p className="text-sm text-[#94A3B8] mb-3">{error}</p>
           )}
-          <button onClick={() => runSearch()} className="px-4 py-2 text-xs rounded-lg transition-colors" style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
+          <motion.button
+            onClick={() => runSearch()}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="px-4 py-2 text-xs rounded-lg"
+            style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
+          >
             Try again
-          </button>
+          </motion.button>
         </div>
       )}
 
@@ -95,13 +106,16 @@ export function TrialList() {
           </div>
           <p className="text-sm font-medium text-[#94A3B8] mb-1">No trials found</p>
           <p className="text-xs text-[#64748B] mb-4">Try a different search term or broader condition name</p>
-          <button
+          <motion.button
             onClick={() => runSearch()}
-            className="px-4 py-2 text-xs rounded-lg transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="px-4 py-2 text-xs rounded-lg"
             style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
           >
             Search with your condition
-          </button>
+          </motion.button>
         </div>
       )}
 
