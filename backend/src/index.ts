@@ -1,8 +1,16 @@
 import dotenv from "dotenv";
 import path from "path";
-// Load .env from repo root regardless of where the process was launched from
-dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
-dotenv.config({ path: path.resolve(process.cwd(), ".env") }); // fallback for root-launched processes
+// Try multiple locations so the server works regardless of launch directory
+const envPaths = [
+  path.resolve(__dirname, "../../.env"),   // backend/src → root
+  path.resolve(__dirname, "../../../.env"), // backend/dist/src → root
+  path.resolve(process.cwd(), "../.env"),  // launched from backend/
+  path.resolve(process.cwd(), ".env"),     // launched from root
+];
+for (const p of envPaths) {
+  const result = dotenv.config({ path: p });
+  if (!result.error) { console.log(`[env] Loaded ${p}`); break; }
+}
 import express from "express";
 import cors from "cors";
 
