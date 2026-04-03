@@ -75,7 +75,12 @@ router.post("/analyze-single", async (req: Request, res: Response): Promise<void
       }
     }
 
-    if (!matchResult) {
+    if (
+      !matchResult ||
+      (matchResult.overall_score <= 0 &&
+        matchResult.inclusion_matches.length === 0 &&
+        matchResult.exclusion_matches.length === 0)
+    ) {
       matchResult = buildRuleBasedMatch(twin, targetTrial);
     }
 

@@ -202,7 +202,10 @@ export async function groqEligibilityAnalysis(twin: DigitalTwin, trial: Clinical
 
   return {
     trial_nct_id: payload.trial_nct_id || trial.nct_id,
-    overall_score: payload.overall_score ?? 0,
+    overall_score:
+      payload.overall_score !== undefined && payload.overall_score !== null
+        ? Math.max(0, Math.min(100, payload.overall_score))
+        : 0,
     inclusion_matches: (payload.inclusion_matches || []).map((m): CriterionMatch => ({
       criterion_text: m.criterion_text || "",
       status: m.status,
