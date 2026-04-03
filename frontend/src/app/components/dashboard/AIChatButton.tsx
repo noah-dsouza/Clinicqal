@@ -259,5 +259,3 @@ export function AIChatButton() {
     </div>
   );
 }
-
-import React from "react";

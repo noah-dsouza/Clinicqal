@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 
 interface NavBarProps {
@@ -14,6 +16,7 @@ const TABS = [
 
 export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) {
   const { twin } = useDigitalTwin();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <header
@@ -23,7 +26,11 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
+          <motion.div
+            className="flex items-center gap-2.5 cursor-default"
+            whileHover={{ scale: 1.03 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.25)" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -32,69 +39,104 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
               </svg>
             </div>
             <span className="text-sm font-bold text-[#F1F5F9]">ClinIQ</span>
-          </div>
+          </motion.div>
 
           {/* Tabs */}
-          <nav className="hidden md:flex items-center gap-0.5">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className="px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
-                style={
-                  activeTab === tab.id
-                    ? { background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.25)" }
-                    : { color: "#64748B", border: "1px solid transparent" }
-                }
-              >
-                {tab.label}
-              </button>
-            ))}
+          <nav ref={containerRef} className="hidden md:flex items-center gap-1 relative">
+            {TABS.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <motion.button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  whileHover={{ scale: 1.05, y: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 28 }}
+                  className="relative px-4 py-1.5 rounded-lg text-xs font-medium"
+                  style={{
+                    background: isActive ? "rgba(20,184,166,0.12)" : "transparent",
+                    color: isActive ? "#14B8A6" : "#64748B",
+                    border: isActive ? "1px solid rgba(20,184,166,0.25)" : "1px solid transparent",
+                    boxShadow: isActive ? "0 0 12px rgba(20,184,166,0.15)" : "none",
+                    transition: "color 0.2s, background 0.2s, box-shadow 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#94A3B8";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#64748B";
+                  }}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="tab-glow"
+                      className="absolute inset-0 rounded-lg"
+                      style={{ background: "rgba(20,184,166,0.08)" }}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
+                </motion.button>
+              );
+            })}
           </nav>
 
           {/* Patient info + actions */}
           <div className="flex items-center gap-2">
-            {twin && (
-              <div
-                className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-              >
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(20,184,166,0.15)", color: "#14B8A6" }}>
-                  {twin.intake.demographics.age}
-                </div>
-                <span className="text-[10px] text-[#94A3B8]">
-                  {twin.intake.demographics.sex.charAt(0).toUpperCase() + twin.intake.demographics.sex.slice(1)}
-                  {" · "}
-                  {twin.intake.diagnosis.primary_condition.split(" ").slice(0, 3).join(" ")}
-                </span>
-              </div>
-            )}
-            <button
+            <AnimatePresence>
+              {twin && (
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                >
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(20,184,166,0.15)", color: "#14B8A6" }}>
+                    {twin.intake.demographics.age}
+                  </div>
+                  <span className="text-[10px] text-[#94A3B8]">
+                    {twin.intake.demographics.sex.charAt(0).toUpperCase() + twin.intake.demographics.sex.slice(1)}
+                    {" · "}
+                    {twin.intake.diagnosis.primary_condition.split(" ").slice(0, 3).join(" ")}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <motion.button
               onClick={onRetakeIntake}
-              className="px-3 py-1.5 text-[10px] font-medium rounded-lg transition-colors"
+              whileHover={{ scale: 1.05, color: "#94A3B8" }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="px-3 py-1.5 text-[10px] font-medium rounded-lg"
               style={{ background: "rgba(255,255,255,0.04)", color: "#64748B", border: "1px solid rgba(255,255,255,0.07)" }}
             >
               Retake Intake
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Mobile tabs */}
         <div className="md:hidden flex gap-1 pb-2 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className="px-3 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap transition-all"
-              style={
-                activeTab === tab.id
-                  ? { background: "rgba(20,184,166,0.12)", color: "#14B8A6" }
-                  : { color: "#64748B" }
-              }
-            >
-              {tab.label}
-            </button>
-          ))}
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <motion.button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="px-3 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap"
+                style={{
+                  background: isActive ? "rgba(20,184,166,0.12)" : "transparent",
+                  color: isActive ? "#14B8A6" : "#64748B",
+                }}
+              >
+                {tab.label}
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     </header>

@@ -740,6 +740,7 @@ function ProviderMatchCard({ provider, expanded, onToggle }: { provider: Provide
         </div>
       </div>
     </div>
+    </TiltCard>
   );
 }
 
