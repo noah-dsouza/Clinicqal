@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { LogoMark } from "../shared/LogoMark";
+import { brandPalette, brandGradient } from "../../../lib/theme";
+import React from "react";
 
 // ── Animated Health Dot Map ──────────────────────────────────────────────────
 
@@ -27,15 +30,12 @@ function HealthDotMap() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    // TS: assert non-null for closure use
     const c = ctx;
 
-    // Generate grid dots
     const dots: { x: number; y: number; op: number }[] = [];
     const gap = 14;
     for (let x = 0; x < dims.w; x += gap) {
       for (let y = 0; y < dims.h; y += gap) {
-        // Simulate world map silhouette
         const xr = x / dims.w;
         const yr = y / dims.h;
         const inMap =
@@ -46,18 +46,17 @@ function HealthDotMap() {
           (xr < 0.72 && xr > 0.45 && yr < 0.52 && yr > 0.1) ||
           (xr < 0.82 && xr > 0.66 && yr < 0.82 && yr > 0.62);
         if (inMap && Math.random() > 0.3) {
-          dots.push({ x, y, op: Math.random() * 0.4 + 0.1 });
+          dots.push({ x, y, op: Math.random() * 0.25 + 0.08 });
         }
       }
     }
 
-    // Pulse nodes (health data points)
     const nodes = [
-      { x: dims.w * 0.18, y: dims.h * 0.28, color: "#14B8A6" },
-      { x: dims.w * 0.42, y: dims.h * 0.22, color: "#60A5FA" },
-      { x: dims.w * 0.62, y: dims.h * 0.32, color: "#A78BFA" },
-      { x: dims.w * 0.2, y: dims.h * 0.6, color: "#34D399" },
-      { x: dims.w * 0.72, y: dims.h * 0.7, color: "#14B8A6" },
+      { x: dims.w * 0.18, y: dims.h * 0.28, color: brandPalette.softMoss },
+      { x: dims.w * 0.42, y: dims.h * 0.22, color: brandPalette.sand },
+      { x: dims.w * 0.62, y: dims.h * 0.32, color: brandPalette.warmTaupe },
+      { x: dims.w * 0.2, y: dims.h * 0.6, color: brandPalette.terracotta },
+      { x: dims.w * 0.72, y: dims.h * 0.7, color: brandPalette.amber },
     ];
 
     let startTime = Date.now();
@@ -66,7 +65,6 @@ function HealthDotMap() {
     function draw() {
       c.clearRect(0, 0, dims.w, dims.h);
 
-      // Dots
       dots.forEach((d) => {
         c.beginPath();
         c.arc(d.x, d.y, 1, 0, Math.PI * 2);
@@ -76,31 +74,27 @@ function HealthDotMap() {
 
       const t = (Date.now() - startTime) / 1000;
 
-      // Draw connection lines between nodes
       nodes.forEach((n1, i) => {
         nodes.forEach((n2, j) => {
           if (j <= i) return;
           const dist = Math.hypot(n2.x - n1.x, n2.y - n1.y);
           if (dist > dims.w * 0.35) return;
-          const alpha = Math.max(0, 0.12 - dist / (dims.w * 2.8));
+          const alpha = Math.max(0, 0.2 - dist / (dims.w * 2.5));
           c.beginPath();
           c.moveTo(n1.x, n1.y);
           c.lineTo(n2.x, n2.y);
-          c.strokeStyle = `rgba(20,184,166,${alpha})`;
+          c.strokeStyle = `rgba(255,255,255,${alpha})`;
           c.lineWidth = 0.6;
           c.stroke();
         });
       });
 
-      // Pulsing nodes
       nodes.forEach((n, i) => {
         const pulse = Math.sin(t * 1.5 + i * 1.2) * 0.5 + 0.5;
-        // Glow ring
         c.beginPath();
         c.arc(n.x, n.y, 4 + pulse * 6, 0, Math.PI * 2);
-        c.fillStyle = n.color + "22";
+        c.fillStyle = n.color + "33";
         c.fill();
-        // Inner dot
         c.beginPath();
         c.arc(n.x, n.y, 3, 0, Math.PI * 2);
         c.fillStyle = n.color;
@@ -138,7 +132,6 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate auth — replace with real auth later
     setTimeout(() => {
       setLoading(false);
       onLogin();
@@ -146,23 +139,23 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
   };
 
   const inputCls =
-    "w-full rounded-lg px-4 py-2.5 text-sm text-[#F1F5F9] placeholder-[#64748B] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] focus:outline-none focus:border-[rgba(20,184,166,0.45)] transition-colors";
+    "w-full rounded-lg px-4 py-2.5 text-sm text-[#2F3E34] placeholder-[#8B7765] bg-white border border-[rgba(47,62,52,0.15)] focus:outline-none focus:border-[#6B7F6A] focus:ring-2 focus:ring-offset-2 focus:ring-[#C1843A]/30 transition";
 
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4"
-      style={{ background: "linear-gradient(135deg, #060818 0%, #0d1023 100%)" }}
+      style={{ background: "linear-gradient(135deg, #F6F3ED 0%, #E8DFCF 45%, #F6F3ED 100%)" }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.97, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-        className="w-full max-w-4xl overflow-hidden rounded-2xl flex shadow-2xl"
-        style={{ background: "#090b13", border: "1px solid rgba(255,255,255,0.06)" }}
+        className="w-full max-w-4xl overflow-hidden rounded-[28px] flex shadow-[0_30px_70px_rgba(47,62,52,0.14)]"
+        style={{ background: "#FFFFFF", border: "1px solid rgba(47,62,52,0.1)" }}
       >
         {/* Left — animated health map */}
-        <div className="hidden md:block w-1/2 relative overflow-hidden" style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0f1120 0%, #151929 100%)" }}>
+        <div className="hidden md:block w-1/2 relative overflow-hidden" style={{ borderRight: "1px solid rgba(47,62,52,0.08)" }}>
+          <div className="absolute inset-0" style={{ background: brandGradient }}>
             <HealthDotMap />
 
             {/* Overlay content */}
@@ -171,36 +164,19 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                 initial={{ opacity: 0, y: -16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="mb-5"
+                className="mb-6"
               >
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                  style={{ background: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(96,165,250,0.15))", border: "1px solid rgba(20,184,166,0.3)" }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M3 12l9 5 9-5" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M3 17l9 5 9-5" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
+                <LogoMark size={52} showWordmark={true} orientation="horizontal" />
               </motion.div>
-
-              <motion.h2
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.65, duration: 0.5 }}
-                className="text-3xl font-bold mb-2 text-center"
-                style={{ background: "linear-gradient(135deg, #14B8A6, #60A5FA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
-              >
-                ClinIQ
-              </motion.h2>
 
               <motion.p
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.75, duration: 0.5 }}
                 className="text-sm text-center max-w-xs leading-relaxed"
-                style={{ color: "#94A3B8" }}
+                style={{ color: "rgba(246,243,237,0.75)" }}
               >
-                Your AI-powered health digital twin — discover clinical trials and care matches tailored to you.
+                AI-powered clinical trial matching &amp; digital twin health platform.
               </motion.p>
 
               {/* Feature bullets */}
@@ -217,7 +193,7 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <span className="text-base">{item.icon}</span>
-                    <span className="text-xs" style={{ color: "#94A3B8" }}>{item.text}</span>
+                    <span className="text-xs" style={{ color: "rgba(246,243,237,0.7)" }}>{item.text}</span>
                   </div>
                 ))}
               </motion.div>
@@ -226,7 +202,7 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
         </div>
 
         {/* Right — form */}
-        <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col justify-center">
+        <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col justify-center" style={{ background: "#FFFFFF" }}>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -234,21 +210,16 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
           >
             {/* Mobile logo */}
             <div className="flex items-center gap-2 mb-6 md:hidden">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.25)" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="font-bold text-[#F1F5F9]">ClinIQ</span>
+              <LogoMark size={28} showWordmark={true} />
             </div>
 
-            <h1 className="text-2xl font-bold text-[#F1F5F9] mb-1">Welcome back</h1>
-            <p className="text-sm mb-7" style={{ color: "#94A3B8" }}>Sign in to your health dashboard</p>
+            <h1 className="text-2xl font-bold mb-1" style={{ color: "#2F3E34" }}>Welcome back</h1>
+            <p className="text-sm mb-7" style={{ color: "#8B7765" }}>Sign in to your health dashboard</p>
 
             {/* Google SSO */}
             <button
               className="w-full flex items-center justify-center gap-2.5 rounded-xl p-3 mb-5 text-sm font-medium transition-all"
-              style={{ background: "#13151f", border: "1px solid rgba(255,255,255,0.1)", color: "#CBD5E1" }}
+              style={{ background: "#F6F3ED", border: "1px solid rgba(47,62,52,0.15)", color: "#2F3E34" }}
               onClick={onLogin}
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -262,17 +233,17 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
 
             <div className="relative my-5">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }} />
+                <div className="w-full" style={{ borderTop: "1px solid rgba(47,62,52,0.1)" }} />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-3 text-[#64748B]" style={{ background: "#090b13" }}>or sign in with email</span>
+                <span className="px-3" style={{ background: "#FFFFFF", color: "#8B7765" }}>or sign in with email</span>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">
-                  Email <span style={{ color: "#14B8A6" }}>*</span>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "#5C524A" }}>
+                  Email <span style={{ color: "#C1843A" }}>*</span>
                 </label>
                 <input
                   type="email"
@@ -285,8 +256,8 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">
-                  Password <span style={{ color: "#14B8A6" }}>*</span>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "#5C524A" }}>
+                  Password <span style={{ color: "#C1843A" }}>*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -300,7 +271,7 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                   <button
                     type="button"
                     className="absolute inset-y-0 right-3 flex items-center transition-colors"
-                    style={{ color: "#64748B" }}
+                    style={{ color: "#8B7765" }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -317,8 +288,8 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                 disabled={loading}
                 className="relative w-full py-2.5 rounded-xl text-sm font-semibold text-white overflow-hidden transition-all disabled:opacity-60 mt-2"
                 style={{
-                  background: "linear-gradient(135deg, #0D9488, #22C55E)",
-                  boxShadow: isHovered ? "0 0 24px rgba(20,184,166,0.4)" : "0 0 14px rgba(20,184,166,0.2)",
+                  background: brandGradient,
+                  boxShadow: isHovered ? "0 0 24px rgba(47,62,52,0.35)" : "0 0 14px rgba(47,62,52,0.18)",
                 }}
               >
                 <span className="flex items-center justify-center gap-2">
@@ -344,23 +315,23 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
               <button
                 onClick={onGuest}
                 className="text-xs transition-colors"
-                style={{ color: "#64748B" }}
+                style={{ color: "#8B7765" }}
               >
                 Continue as guest →
               </button>
-              <a href="#" className="text-xs transition-colors" style={{ color: "#14B8A6" }}>
+              <a href="#" className="text-xs transition-colors" style={{ color: "#C1843A" }}>
                 Forgot password?
               </a>
             </div>
 
-            <div className="mt-6 pt-5 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              <p className="text-center text-xs" style={{ color: "#64748B" }}>
+            <div className="mt-6 pt-5 border-t" style={{ borderColor: "rgba(47,62,52,0.08)" }}>
+              <p className="text-center text-xs" style={{ color: "#8B7765" }}>
                 Don't have an account?{" "}
-                <button onClick={onGuest} className="font-medium" style={{ color: "#14B8A6" }}>
+                <button onClick={onGuest} className="font-medium" style={{ color: "#C1843A" }}>
                   Start your health profile
                 </button>
               </p>
-              <p className="text-center text-[10px] mt-3" style={{ color: "#475569" }}>
+              <p className="text-center text-[10px] mt-3" style={{ color: "#B1A79F" }}>
                 For research and informational use only · Not medical advice
               </p>
             </div>
@@ -370,5 +341,3 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
     </div>
   );
 }
-
-import React from "react";

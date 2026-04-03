@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
+import { LogoMark } from "../shared/LogoMark";
 
 interface NavBarProps {
   activeTab: string;
@@ -21,7 +22,7 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
   return (
     <header
       className="sticky top-0 z-40 backdrop-blur-md border-b"
-      style={{ background: "rgba(15,23,42,0.92)", borderColor: "rgba(255,255,255,0.07)" }}
+      style={{ background: "rgba(246,243,237,0.95)", borderColor: "rgba(47,62,52,0.1)" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-14">
@@ -31,14 +32,7 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
             whileHover={{ scale: 1.03 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.25)" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 12l9 5 9-5" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 17l9 5 9-5" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <span className="text-sm font-bold text-[#F1F5F9]">ClinIQ</span>
+            <LogoMark size={28} showWordmark={true} />
           </motion.div>
 
           {/* Tabs */}
@@ -54,24 +48,24 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
                   transition={{ type: "spring", stiffness: 500, damping: 28 }}
                   className="relative px-4 py-1.5 rounded-lg text-xs font-medium"
                   style={{
-                    background: isActive ? "rgba(20,184,166,0.12)" : "transparent",
-                    color: isActive ? "#14B8A6" : "#64748B",
-                    border: isActive ? "1px solid rgba(20,184,166,0.25)" : "1px solid transparent",
-                    boxShadow: isActive ? "0 0 12px rgba(20,184,166,0.15)" : "none",
+                    background: isActive ? "rgba(47,62,52,0.1)" : "transparent",
+                    color: isActive ? "#2F3E34" : "#8B7765",
+                    border: isActive ? "1px solid rgba(47,62,52,0.2)" : "1px solid transparent",
+                    boxShadow: isActive ? "0 0 12px rgba(47,62,52,0.08)" : "none",
                     transition: "color 0.2s, background 0.2s, box-shadow 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#94A3B8";
+                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#5C524A";
                   }}
                   onMouseLeave={(e) => {
-                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#64748B";
+                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#8B7765";
                   }}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="tab-glow"
                       className="absolute inset-0 rounded-lg"
-                      style={{ background: "rgba(20,184,166,0.08)" }}
+                      style={{ background: "rgba(47,62,52,0.06)" }}
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
@@ -90,12 +84,12 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  style={{ background: "rgba(47,62,52,0.06)", border: "1px solid rgba(47,62,52,0.1)" }}
                 >
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(20,184,166,0.15)", color: "#14B8A6" }}>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(47,62,52,0.12)", color: "#2F3E34" }}>
                     {twin.intake.demographics.age}
                   </div>
-                  <span className="text-[10px] text-[#94A3B8]">
+                  <span className="text-[10px] text-[#8B7765]">
                     {twin.intake.demographics.sex.charAt(0).toUpperCase() + twin.intake.demographics.sex.slice(1)}
                     {" · "}
                     {twin.intake.diagnosis.primary_condition.split(" ").slice(0, 3).join(" ")}
@@ -105,11 +99,11 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
             </AnimatePresence>
             <motion.button
               onClick={onRetakeIntake}
-              whileHover={{ scale: 1.05, color: "#94A3B8" }}
+              whileHover={{ scale: 1.05, color: "#5C524A" }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className="px-3 py-1.5 text-[10px] font-medium rounded-lg"
-              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B", border: "1px solid rgba(255,255,255,0.07)" }}
+              style={{ background: "rgba(47,62,52,0.06)", color: "#8B7765", border: "1px solid rgba(47,62,52,0.1)" }}
             >
               Retake Intake
             </motion.button>
@@ -129,8 +123,8 @@ export function NavBar({ activeTab, onTabChange, onRetakeIntake }: NavBarProps) 
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 className="px-3 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap"
                 style={{
-                  background: isActive ? "rgba(20,184,166,0.12)" : "transparent",
-                  color: isActive ? "#14B8A6" : "#64748B",
+                  background: isActive ? "rgba(47,62,52,0.1)" : "transparent",
+                  color: isActive ? "#2F3E34" : "#8B7765",
                 }}
               >
                 {tab.label}

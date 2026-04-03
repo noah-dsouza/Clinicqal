@@ -9,13 +9,13 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<string, string> = {
-  teal: "bg-[rgba(13,148,136,0.1)] text-[#0D9488] border-[rgba(13,148,136,0.25)]",
-  violet: "bg-[rgba(13,148,136,0.1)] text-[#0D9488] border-[rgba(13,148,136,0.25)]",
-  emerald: "bg-[rgba(34,197,94,0.1)] text-[#22C55E] border-[rgba(34,197,94,0.25)]",
-  amber: "bg-[rgba(245,158,11,0.1)] text-[#F59E0B] border-[rgba(245,158,11,0.25)]",
-  rose: "bg-[rgba(239,68,68,0.1)] text-[#EF4444] border-[rgba(239,68,68,0.25)]",
-  blue: "bg-[rgba(59,130,246,0.1)] text-[#3B82F6] border-[rgba(59,130,246,0.25)]",
-  muted: "bg-[rgba(156,163,175,0.1)] text-[#6B7280] border-[rgba(156,163,175,0.25)]",
+  teal: "bg-[rgba(47,62,52,0.08)] text-[#2F3E34] border-[rgba(47,62,52,0.2)]",
+  violet: "bg-[rgba(47,62,52,0.08)] text-[#2F3E34] border-[rgba(47,62,52,0.2)]",
+  emerald: "bg-[rgba(107,127,106,0.1)] text-[#6B7F6A] border-[rgba(107,127,106,0.25)]",
+  amber: "bg-[rgba(193,132,58,0.1)] text-[#C1843A] border-[rgba(193,132,58,0.25)]",
+  rose: "bg-[rgba(169,90,63,0.1)] text-[#A95A3F] border-[rgba(169,90,63,0.25)]",
+  blue: "bg-[rgba(163,174,149,0.12)] text-[#6B7F6A] border-[rgba(163,174,149,0.3)]",
+  muted: "bg-[rgba(139,119,101,0.08)] text-[#8B7765] border-[rgba(139,119,101,0.2)]",
 };
 
 const sizeStyles: Record<string, string> = {

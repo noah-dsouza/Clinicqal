@@ -1,32 +1,43 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --bg-base: #F9FAFB;
+  --deep-sage: #2F3E34;
+  --sage: #6B7F6A;
+  --soft-moss: #A3AE95;
+  --warm-taupe: #8B7765;
+  --cream: #F6F3ED;
+  --sand: #E8DFCF;
+  --amber: #C1843A;
+  --terracotta: #A95A3F;
+
+  --bg-base: var(--cream);
   --bg-surface: #FFFFFF;
-  --bg-elevated: #F3F4F6;
-  --bg-border: #E5E7EB;
+  --bg-elevated: #F8F3EB;
+  --bg-border: rgba(47, 62, 52, 0.12);
 
-  --primary: #22C55E;
-  --secondary: #0D9488;
-  --accent: #E5E7EB;
+  --primary: var(--deep-sage);
+  --secondary: var(--sage);
+  --accent: var(--soft-moss);
 
-  --accent-teal: #0D9488;
-  --accent-teal-dim: rgba(13, 148, 136, 0.15);
-  --accent-emerald: #22C55E;
-  --accent-emerald-dim: rgba(34, 197, 94, 0.15);
-  --accent-violet: #0D9488;
-  --accent-violet-dim: rgba(13, 148, 136, 0.15);
-  --accent-amber: #F59E0B;
-  --accent-amber-dim: rgba(245, 158, 11, 0.15);
-  --accent-rose: #EF4444;
-  --accent-rose-dim: rgba(239, 68, 68, 0.15);
-  --accent-blue: #3B82F6;
-  --accent-blue-dim: rgba(59, 130, 246, 0.15);
+  --accent-teal: var(--deep-sage);
+  --accent-teal-dim: rgba(47, 62, 52, 0.08);
+  --accent-emerald: var(--sage);
+  --accent-emerald-dim: rgba(107, 127, 106, 0.12);
+  --accent-violet: var(--soft-moss);
+  --accent-violet-dim: rgba(163, 174, 149, 0.15);
+  --accent-amber: var(--amber);
+  --accent-amber-dim: rgba(193, 132, 58, 0.18);
+  --accent-rose: var(--terracotta);
+  --accent-rose-dim: rgba(169, 90, 63, 0.18);
+  --accent-blue: var(--warm-taupe);
+  --accent-blue-dim: rgba(139, 119, 101, 0.18);
 
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #6B7280;
-  --text-label: #9CA3AF;
+  --text-primary: #1F1E1B;
+  --text-secondary: #5C524A;
+  --text-muted: #857A71;
+  --text-label: #B1A79F;
+  --brand-gradient: linear-gradient(135deg, var(--deep-sage), var(--sage));
 }
 
 * {
@@ -42,7 +53,7 @@ body {
   padding: 0;
   background-color: var(--bg-base);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -81,34 +92,28 @@ input[type="range"]::-webkit-slider-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--secondary);
+  background: var(--deep-sage);
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(13, 148, 136, 0.5);
+  box-shadow: 0 0 8px rgba(47, 62, 52, 0.35);
   transition: box-shadow 0.2s;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 14px rgba(13, 148, 136, 0.8);
+  box-shadow: 0 0 14px rgba(47, 62, 52, 0.5);
 }
 
-.glow-teal {
-  box-shadow: 0 0 20px rgba(13, 148, 136, 0.15), 0 0 40px rgba(13, 148, 136, 0.05);
-}
-
-.glow-violet {
-  box-shadow: 0 0 20px rgba(13, 148, 136, 0.15), 0 0 40px rgba(13, 148, 136, 0.05);
-}
-
+.glow-teal,
+.glow-violet,
 .glow-emerald {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15), 0 0 40px rgba(34, 197, 94, 0.05);
+  box-shadow: 0 18px 40px rgba(47, 62, 52, 0.12);
 }
 
 .glow-amber {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), 0 0 40px rgba(245, 158, 11, 0.05);
+  box-shadow: 0 18px 40px rgba(193, 132, 58, 0.18);
 }
 
 .glow-rose {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15), 0 0 40px rgba(239, 68, 68, 0.05);
+  box-shadow: 0 18px 40px rgba(169, 90, 63, 0.18);
 }
 
 .animate-pulse-slow {

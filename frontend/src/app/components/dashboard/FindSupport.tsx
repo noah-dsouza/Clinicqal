@@ -203,9 +203,9 @@ function generateTrials(twin: DigitalTwin): TrialMatch[] {
 // ─── Score helpers ──────────────────────────────────────────────────────────
 
 function scoreColor(score: number): string {
-  if (score >= 80) return "#34D399";
-  if (score >= 60) return "#FBBF24";
-  return "#F87171";
+  if (score >= 80) return "#6B7F6A";
+  if (score >= 60) return "#C1843A";
+  return "#A95A3F";
 }
 
 function scoreLabel(score: number): string {
@@ -224,7 +224,7 @@ function ScoreRing({ score, size = 52 }: { score: number; size?: number }) {
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={4} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(47,62,52,0.1)" strokeWidth={4} />
         <circle
           cx={size / 2} cy={size / 2} r={radius} fill="none"
           stroke={color} strokeWidth={4} strokeLinecap="round"
@@ -242,7 +242,7 @@ function ScoreRing({ score, size = 52 }: { score: number; size?: number }) {
 
 // ─── Tag chip ───────────────────────────────────────────────────────────────
 
-function Tag({ label, color = "#14B8A6" }: { label: string; color?: string }) {
+function Tag({ label, color = "#6B7F6A" }: { label: string; color?: string }) {
   return (
     <span
       className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
@@ -331,8 +331,8 @@ function TrialMatchCard({
   return (
     <TiltCard
       active={expanded}
-      borderColor={expanded ? `${color}50` : "rgba(255,255,255,0.07)"}
-      bg={expanded ? "#1a2744" : "#1E293B"}
+      borderColor={expanded ? `${color}50` : "rgba(47,62,52,0.1)"}
+      bg={expanded ? "#F8F3EB" : "#FFFFFF"}
       shadow={expanded ? `0 0 24px ${color}18` : undefined}
     >
     <div className="cursor-pointer" onClick={onToggle}>
@@ -347,30 +347,30 @@ function TrialMatchCard({
             >
               {label}
             </span>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[rgba(96,165,250,0.12)] text-[#60A5FA] border border-[rgba(96,165,250,0.2)]">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[rgba(107,127,106,0.1)] text-[#6B7F6A] border border-[rgba(107,127,106,0.2)]">
               {trial.phase}
             </span>
             <span
               className="text-[10px] font-medium px-2 py-0.5 rounded-full"
               style={{
-                background: trial.status === "Recruiting" ? "rgba(52,211,153,0.12)" : "rgba(251,191,36,0.12)",
-                color: trial.status === "Recruiting" ? "#34D399" : "#FBBF24",
-                border: `1px solid ${trial.status === "Recruiting" ? "rgba(52,211,153,0.25)" : "rgba(251,191,36,0.25)"}`,
+                background: trial.status === "Recruiting" ? "rgba(107,127,106,0.1)" : "rgba(193,132,58,0.1)",
+                color: trial.status === "Recruiting" ? "#6B7F6A" : "#C1843A",
+                border: `1px solid ${trial.status === "Recruiting" ? "rgba(107,127,106,0.2)" : "rgba(193,132,58,0.2)"}`,
               }}
             >
               {trial.status}
             </span>
           </div>
-          <h3 className="text-sm font-semibold text-[#F1F5F9] leading-snug line-clamp-2 mb-1">
+          <h3 className="text-sm font-semibold text-[#2F3E34] leading-snug line-clamp-2 mb-1">
             {trial.title}
           </h3>
-          <p className="text-xs text-[#64748B] mb-2">{trial.sponsor}</p>
+          <p className="text-xs text-[#B1A79F] mb-2">{trial.sponsor}</p>
           <div className="flex items-center gap-1.5 mb-2">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2" />
-              <circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2" />
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#B1A79F" strokeWidth="2" />
+              <circle cx="12" cy="10" r="3" stroke="#B1A79F" strokeWidth="2" />
             </svg>
-            <span className="text-[10px] text-[#64748B]">{trial.location}</span>
+            <span className="text-[10px] text-[#B1A79F]">{trial.location}</span>
           </div>
           <div className="flex flex-wrap gap-1">
             {trial.tags.slice(0, 3).map((t, i) => (
@@ -380,10 +380,10 @@ function TrialMatchCard({
         </div>
         <div
           className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300"
-          style={{ background: "rgba(255,255,255,0.05)", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+          style={{ background: "rgba(47,62,52,0.06)", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 9l6 6 6-6" stroke="#8B7765" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>
@@ -394,24 +394,24 @@ function TrialMatchCard({
         style={{ maxHeight: expanded ? "1200px" : "0px", opacity: expanded ? 1 : 0 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 pb-5 border-t border-[rgba(255,255,255,0.06)] pt-4 space-y-4">
+        <div className="px-4 pb-5 border-t border-[rgba(47,62,52,0.08)] pt-4 space-y-4">
           <div>
-            <h4 className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1.5">About This Trial</h4>
-            <p className="text-xs text-[#CBD5E1] leading-relaxed">{trial.description}</p>
+            <h4 className="text-[11px] font-semibold text-[#B1A79F] uppercase tracking-wider mb-1.5">About This Trial</h4>
+            <p className="text-xs text-[#5C524A] leading-relaxed">{trial.description}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="rounded-xl p-3 bg-[rgba(52,211,153,0.06)] border border-[rgba(52,211,153,0.15)]">
-              <h4 className="text-[10px] font-semibold text-[#34D399] uppercase tracking-wider mb-1.5">Why You May Qualify</h4>
-              <p className="text-xs text-[#CBD5E1] leading-relaxed">{trial.whyQualified}</p>
+            <div className="rounded-xl p-3 bg-[rgba(107,127,106,0.06)] border border-[rgba(107,127,106,0.15)]">
+              <h4 className="text-[10px] font-semibold text-[#6B7F6A] uppercase tracking-wider mb-1.5">Why You May Qualify</h4>
+              <p className="text-xs text-[#5C524A] leading-relaxed">{trial.whyQualified}</p>
             </div>
             {trial.exclusionFactors.length > 0 && (
-              <div className="rounded-xl p-3 bg-[rgba(251,191,36,0.06)] border border-[rgba(251,191,36,0.15)]">
-                <h4 className="text-[10px] font-semibold text-[#FBBF24] uppercase tracking-wider mb-1.5">Potential Exclusion Factors</h4>
+              <div className="rounded-xl p-3 bg-[rgba(193,132,58,0.06)] border border-[rgba(193,132,58,0.15)]">
+                <h4 className="text-[10px] font-semibold text-[#C1843A] uppercase tracking-wider mb-1.5">Potential Exclusion Factors</h4>
                 <ul className="space-y-1">
                   {trial.exclusionFactors.map((f, i) => (
-                    <li key={i} className="text-xs text-[#CBD5E1] flex items-start gap-1.5">
-                      <span className="text-[#FBBF24] mt-0.5">⚠</span>{f}
+                    <li key={i} className="text-xs text-[#5C524A] flex items-start gap-1.5">
+                      <span className="text-[#C1843A] mt-0.5">⚠</span>{f}
                     </li>
                   ))}
                 </ul>
@@ -420,22 +420,22 @@ function TrialMatchCard({
           </div>
 
           <div>
-            <h4 className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-2">Eligibility Highlights</h4>
+            <h4 className="text-[11px] font-semibold text-[#B1A79F] uppercase tracking-wider mb-2">Eligibility Highlights</h4>
             <div className="flex flex-wrap gap-1.5">
               {trial.eligibilityHighlights.map((e, i) => (
-                <span key={i} className="text-[10px] px-2 py-1 rounded-lg bg-[rgba(255,255,255,0.05)] text-[#94A3B8] border border-[rgba(255,255,255,0.08)]">{e}</span>
+                <span key={i} className="text-[10px] px-2 py-1 rounded-lg bg-[rgba(47,62,52,0.05)] text-[#8B7765] border border-[rgba(47,62,52,0.1)]">{e}</span>
               ))}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Study Type</span>
-              <p className="text-[#CBD5E1] mt-0.5">{trial.studyType}</p>
+              <span className="text-[10px] text-[#B1A79F] uppercase tracking-wider">Study Type</span>
+              <p className="text-[#5C524A] mt-0.5">{trial.studyType}</p>
             </div>
             <div>
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Contact</span>
-              <p className="text-[#CBD5E1] mt-0.5">{trial.contact}</p>
+              <span className="text-[10px] text-[#B1A79F] uppercase tracking-wider">Contact</span>
+              <p className="text-[#5C524A] mt-0.5">{trial.contact}</p>
             </div>
           </div>
 
@@ -445,7 +445,7 @@ function TrialMatchCard({
               target="_blank"
               rel="noopener noreferrer"
               className="w-full block py-2 rounded-xl text-xs font-semibold text-center transition-all"
-              style={{ background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.25)" }}
+              style={{ background: "rgba(47,62,52,0.08)", color: "#2F3E34", border: "1px solid rgba(47,62,52,0.15)" }}
               onClick={(e) => e.stopPropagation()}
             >
               View full details on ClinicalTrials.gov ↗
@@ -465,35 +465,35 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
     doctor.phone && /[\d+]/.test(doctor.phone) ? `tel:${doctor.phone.replace(/[^+\d]/g, "")}` : null;
   const emailHref = doctor.email ? `mailto:${doctor.email}` : null;
   return (
-    <TiltCard active={false} borderColor="rgba(20,184,166,0.15)" bg="#1E293B">
+    <TiltCard active={false} borderColor="rgba(47,62,52,0.15)" bg="#FFFFFF">
       <div className="p-4">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center text-sm font-bold"
-            style={{ background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
+            style={{ background: "rgba(47,62,52,0.08)", color: "#2F3E34", border: "1px solid rgba(47,62,52,0.15)" }}>
             {doctor.name.split(" ").filter((w: string) => w.startsWith("Dr") || w.length > 1).slice(1, 3).map((w: string) => w[0]).join("")}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-[#F1F5F9] mb-0.5 truncate">{doctor.name}</h3>
-            <p className="text-xs text-[#14B8A6] mb-1">{doctor.specialty}</p>
+            <h3 className="text-sm font-semibold text-[#2F3E34] mb-0.5 truncate">{doctor.name}</h3>
+            <p className="text-xs text-[#6B7F6A] mb-1">{doctor.specialty}</p>
             <div className="flex items-center gap-3 flex-wrap">
               {doctor.rating && (
-                <span className="text-[10px] text-[#FBBF24]">★ {doctor.rating.toFixed(1)}{doctor.reviews ? ` (${doctor.reviews})` : ""}</span>
+                <span className="text-[10px] text-[#C1843A]">★ {doctor.rating.toFixed(1)}{doctor.reviews ? ` (${doctor.reviews})` : ""}</span>
               )}
               <span className="text-[10px] px-1.5 py-0.5 rounded-full"
-                style={{ background: doctor.accepting_patients ? "rgba(52,211,153,0.12)" : "rgba(248,113,113,0.12)", color: doctor.accepting_patients ? "#34D399" : "#F87171" }}>
+                style={{ background: doctor.accepting_patients ? "rgba(107,127,106,0.1)" : "rgba(169,90,63,0.1)", color: doctor.accepting_patients ? "#6B7F6A" : "#A95A3F" }}>
                 {doctor.accepting_patients ? "Accepting patients" : "Not accepting"}
               </span>
-              {doctor.distance && <span className="text-[10px] text-[#64748B]">{doctor.distance}</span>}
+              {doctor.distance && <span className="text-[10px] text-[#B1A79F]">{doctor.distance}</span>}
             </div>
           </div>
         </div>
         <div className="mt-3 space-y-1">
-          <p className="text-[10px] text-[#64748B] flex items-center gap-1.5">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2"/></svg>
+          <p className="text-[10px] text-[#B1A79F] flex items-center gap-1.5">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#B1A79F" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="#B1A79F" strokeWidth="2"/></svg>
             {doctor.address}
           </p>
-          <p className="text-[10px] text-[#94A3B8] flex items-center gap-1.5">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.44 2 2 0 0 1 3.55 1.25h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17" stroke="#94A3B8" strokeWidth="2"/></svg>
+          <p className="text-[10px] text-[#8B7765] flex items-center gap-1.5">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.44 2 2 0 0 1 3.55 1.25h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17" stroke="#8B7765" strokeWidth="2"/></svg>
             {doctor.phone}
           </p>
         </div>
@@ -502,14 +502,14 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
             <a
               href={emailHref}
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
-              style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
+              style={{ background: "rgba(47,62,52,0.08)", color: "#2F3E34", border: "1px solid rgba(47,62,52,0.15)" }}
             >
               Email Clinic
             </a>
           ) : (
             <div
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
-              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}
+              style={{ background: "rgba(47,62,52,0.04)", color: "#B1A79F" }}
             >
               Email unavailable
             </div>
@@ -518,14 +518,14 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
             <a
               href={telHref}
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
-              style={{ background: "rgba(96,165,250,0.12)", color: "#60A5FA", border: "1px solid rgba(96,165,250,0.25)" }}
+              style={{ background: "rgba(107,127,106,0.1)", color: "#6B7F6A", border: "1px solid rgba(107,127,106,0.2)" }}
             >
               Call Clinic
             </a>
           ) : (
             <div
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
-              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}
+              style={{ background: "rgba(47,62,52,0.04)", color: "#B1A79F" }}
             >
               Phone unavailable
             </div>
@@ -590,22 +590,22 @@ export function FindSupport() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#0F172A" }}>
+    <div className="min-h-screen" style={{ background: "#F6F3ED" }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-[#F1F5F9]">Find Support</h1>
-          <p className="text-xs text-[#64748B] mt-0.5">
+          <h1 className="text-xl font-bold text-[#2F3E34]">Find Support</h1>
+          <p className="text-xs text-[#8B7765] mt-0.5">
             Live trials & real doctor search based on your health profile
           </p>
 
           {/* Health summary strip */}
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { label: "Condition", value: twin.intake.diagnosis.primary_condition.split(" ").slice(0, 3).join(" "), color: "#14B8A6" },
-              { label: "ECOG Status", value: `${twin.ecog_estimate} — ${["Fully active", "Light work", "Self-care only", "Limited self-care", "Bedridden"][twin.ecog_estimate] ?? "—"}`, color: twin.ecog_estimate <= 1 ? "#34D399" : twin.ecog_estimate <= 2 ? "#FBBF24" : "#F87171" },
-              { label: "Trial Matches", value: `${trials.length} found`, color: "#60A5FA" },
-              { label: "Doctors Found", value: doctors.length > 0 ? `${doctors.length} results` : "Enter location", color: "#A78BFA" },
+              { label: "Condition", value: twin.intake.diagnosis.primary_condition.split(" ").slice(0, 3).join(" "), color: "#2F3E34" },
+              { label: "ECOG Status", value: `${twin.ecog_estimate} — ${["Fully active", "Light work", "Self-care only", "Limited self-care", "Bedridden"][twin.ecog_estimate] ?? "—"}`, color: twin.ecog_estimate <= 1 ? "#6B7F6A" : twin.ecog_estimate <= 2 ? "#C1843A" : "#A95A3F" },
+              { label: "Trial Matches", value: `${trials.length} found`, color: "#6B7F6A" },
+              { label: "Doctors Found", value: doctors.length > 0 ? `${doctors.length} results` : "Enter location", color: "#8B7765" },
             ].map((chip, i) => (
               <motion.div
                 key={i}
@@ -622,7 +622,7 @@ export function FindSupport() {
         </div>
 
         {/* Section tabs */}
-        <div className="flex items-center gap-1 mb-4 p-1 rounded-xl w-fit" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="flex items-center gap-1 mb-4 p-1 rounded-xl w-fit" style={{ background: "rgba(47,62,52,0.06)", border: "1px solid rgba(47,62,52,0.1)" }}>
           {[
             { id: "trials" as const, label: "Clinical Trial Matches", count: filteredTrials.length },
             { id: "care" as const, label: "Find Doctors Near Me", count: doctors.length },
@@ -636,14 +636,14 @@ export function FindSupport() {
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
               style={
                 activeSection === tab.id
-                  ? { background: tab.id === "trials" ? "rgba(96,165,250,0.15)" : "rgba(20,184,166,0.15)", color: tab.id === "trials" ? "#60A5FA" : "#14B8A6", border: `1px solid ${tab.id === "trials" ? "rgba(96,165,250,0.3)" : "rgba(20,184,166,0.3)"}` }
-                  : { color: "#64748B" }
+                  ? { background: "#FFFFFF", color: "#2F3E34", border: "1px solid rgba(47,62,52,0.15)", boxShadow: "0 2px 8px rgba(47,62,52,0.08)" }
+                  : { color: "#8B7765" }
               }
             >
               {tab.label}
               <span
                 className="text-[10px] px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(255,255,255,0.08)", color: activeSection === tab.id ? "inherit" : "#64748B" }}
+                style={{ background: "rgba(47,62,52,0.08)", color: activeSection === tab.id ? "#2F3E34" : "#B1A79F" }}
               >
                 {tab.count}
               </span>
@@ -654,7 +654,7 @@ export function FindSupport() {
         {/* Filters (trials only) */}
         {activeSection === "trials" && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Filter:</span>
+            <span className="text-[10px] text-[#B1A79F] uppercase tracking-wider">Filter:</span>
             {(["all", "high", "medium", "low"] as FilterCategory[]).map((f) => (
               <motion.button
                 key={f}
@@ -665,8 +665,8 @@ export function FindSupport() {
                 className="px-3 py-1 rounded-full text-[10px] font-semibold"
                 style={
                   filter === f
-                    ? { background: f === "all" ? "rgba(96,165,250,0.2)" : f === "high" ? "rgba(52,211,153,0.2)" : f === "medium" ? "rgba(251,191,36,0.2)" : "rgba(248,113,113,0.2)", color: f === "all" ? "#60A5FA" : f === "high" ? "#34D399" : f === "medium" ? "#FBBF24" : "#F87171", border: `1px solid ${f === "all" ? "rgba(96,165,250,0.4)" : f === "high" ? "rgba(52,211,153,0.4)" : f === "medium" ? "rgba(251,191,36,0.4)" : "rgba(248,113,113,0.4)"}` }
-                    : { background: "rgba(255,255,255,0.04)", color: "#64748B", border: "1px solid rgba(255,255,255,0.08)" }
+                    ? { background: f === "all" ? "rgba(47,62,52,0.12)" : f === "high" ? "rgba(107,127,106,0.15)" : f === "medium" ? "rgba(193,132,58,0.15)" : "rgba(169,90,63,0.15)", color: f === "all" ? "#2F3E34" : f === "high" ? "#6B7F6A" : f === "medium" ? "#C1843A" : "#A95A3F", border: `1px solid ${f === "all" ? "rgba(47,62,52,0.25)" : f === "high" ? "rgba(107,127,106,0.3)" : f === "medium" ? "rgba(193,132,58,0.3)" : "rgba(169,90,63,0.3)"}` }
+                    : { background: "rgba(47,62,52,0.04)", color: "#B1A79F", border: "1px solid rgba(47,62,52,0.08)" }
                 }
               >
                 {f === "all" ? "All Matches" : f === "high" ? "High Match (80+)" : f === "medium" ? "Good Match (60–79)" : "Possible (< 60)"}
@@ -676,9 +676,9 @@ export function FindSupport() {
         )}
 
         {/* Disclaimer */}
-        <div className="mb-4 px-3 py-2.5 rounded-xl" style={{ background: "rgba(248,113,113,0.05)", border: "1px solid rgba(248,113,113,0.12)" }}>
-          <p className="text-[10px] text-[#94A3B8] leading-relaxed">
-            <span className="text-[#F87171] font-semibold">Disclaimer: </span>
+        <div className="mb-4 px-3 py-2.5 rounded-xl" style={{ background: "rgba(169,90,63,0.05)", border: "1px solid rgba(169,90,63,0.12)" }}>
+          <p className="text-[10px] text-[#8B7765] leading-relaxed">
+            <span className="text-[#A95A3F] font-semibold">Disclaimer: </span>
             Informational only. Does not constitute medical advice. Always consult a qualified healthcare provider.
           </p>
         </div>
@@ -687,7 +687,7 @@ export function FindSupport() {
         {activeSection === "trials" && (
           <div className="space-y-3">
             {filteredTrials.length === 0 ? (
-              <div className="py-16 text-center text-[#64748B] text-sm">No trials match this filter.</div>
+              <div className="py-16 text-center text-[#B1A79F] text-sm">No trials match this filter.</div>
             ) : (
               filteredTrials.map((trial, i) => (
                 <motion.div
@@ -717,26 +717,26 @@ export function FindSupport() {
             >
               <div className="flex-1 relative">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2"/>
-                  <circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2"/>
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#B1A79F" strokeWidth="2"/>
+                  <circle cx="12" cy="10" r="3" stroke="#B1A79F" strokeWidth="2"/>
                 </svg>
                 <input
                   type="text"
                   value={locationInput}
                   onChange={(e) => setLocationInput(e.target.value)}
                   placeholder={`Enter city, zip, or address to find ${twin.intake.diagnosis.primary_condition} specialists...`}
-                  className="w-full rounded-xl pl-9 pr-4 py-2.5 text-xs text-[#F1F5F9] placeholder-[#64748B] focus:outline-none"
-                  style={{ background: "#1E293B", border: "1px solid rgba(255,255,255,0.08)" }}
+                  className="w-full rounded-xl pl-9 pr-4 py-2.5 text-xs text-[#2F3E34] placeholder-[#B1A79F] focus:outline-none"
+                  style={{ background: "#FFFFFF", border: "1px solid rgba(47,62,52,0.12)" }}
                 />
               </div>
               <motion.button
                 type="submit"
                 disabled={doctorsLoading}
-                whileHover={!doctorsLoading ? { scale: 1.05, boxShadow: "0 0 16px rgba(20,184,166,0.35)" } : {}}
+                whileHover={!doctorsLoading ? { scale: 1.05, boxShadow: "0 0 16px rgba(47,62,52,0.2)" } : {}}
                 whileTap={!doctorsLoading ? { scale: 0.95 } : {}}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 className="px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
-                style={{ background: "#14B8A6", color: "#fff" }}
+                style={{ background: "#2F3E34", color: "#fff" }}
               >
                 {doctorsLoading ? "Searching..." : "Search"}
               </motion.button>
@@ -748,25 +748,25 @@ export function FindSupport() {
                 <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-16 text-center">
                   <div className="flex justify-center gap-1 mb-3">
                     {[0,1,2].map((i) => (
-                      <motion.div key={i} className="w-2 h-2 rounded-full bg-[#14B8A6]"
+                      <motion.div key={i} className="w-2 h-2 rounded-full bg-[#6B7F6A]"
                         animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
                         transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }} />
                     ))}
                   </div>
-                  <p className="text-xs text-[#64748B]">Searching for specialists near you...</p>
+                  <p className="text-xs text-[#8B7765]">Searching for specialists near you...</p>
                 </motion.div>
               )}
 
               {doctorsError && !doctorsLoading && (
                 <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 text-center">
-                  <p className="text-sm text-[#F87171] mb-2">Search error</p>
-                  <p className="text-xs text-[#64748B]">{doctorsError}</p>
+                  <p className="text-sm text-[#A95A3F] mb-2">Search error</p>
+                  <p className="text-xs text-[#8B7765]">{doctorsError}</p>
                 </motion.div>
               )}
 
               {!doctorsLoading && !doctorsError && doctors.length > 0 && (
                 <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <p className="text-[10px] text-[#64748B] mb-3 uppercase tracking-wider">
+                  <p className="text-[10px] text-[#B1A79F] mb-3 uppercase tracking-wider">
                     {doctors.length} {twin.intake.diagnosis.primary_condition} specialists near {locationSubmitted}
                   </p>
                   <div className="space-y-3">
@@ -787,14 +787,14 @@ export function FindSupport() {
               {!doctorsLoading && !doctorsError && doctors.length === 0 && !locationSubmitted && (
                 <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
                   <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3"
-                    style={{ background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.15)" }}>
+                    style={{ background: "rgba(47,62,52,0.06)", border: "1px solid rgba(47,62,52,0.12)" }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#14B8A6" strokeWidth="2"/>
-                      <circle cx="12" cy="10" r="3" stroke="#14B8A6" strokeWidth="2"/>
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#6B7F6A" strokeWidth="2"/>
+                      <circle cx="12" cy="10" r="3" stroke="#6B7F6A" strokeWidth="2"/>
                     </svg>
                   </div>
-                  <p className="text-sm font-medium text-[#94A3B8] mb-1">Enter your location</p>
-                  <p className="text-xs text-[#64748B]">We'll find {twin.intake.diagnosis.primary_condition} specialists accepting new patients near you.</p>
+                  <p className="text-sm font-medium text-[#8B7765] mb-1">Enter your location</p>
+                  <p className="text-xs text-[#B1A79F]">We'll find {twin.intake.diagnosis.primary_condition} specialists accepting new patients near you.</p>
                 </motion.div>
               )}
             </AnimatePresence>

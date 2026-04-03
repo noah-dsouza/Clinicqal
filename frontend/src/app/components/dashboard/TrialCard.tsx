@@ -52,8 +52,8 @@ function TiltCard({ children, borderColor }: { children: React.ReactNode; border
         transformStyle: "preserve-3d",
         transformPerspective: 800,
         borderRadius: 12,
-        border: `1px solid ${hovered ? borderColor : "rgba(255,255,255,0.07)"}`,
-        background: "#1E293B",
+        border: `1px solid ${hovered ? borderColor : "rgba(47,62,52,0.1)"}`,
+        background: "#FFFFFF",
         transition: "border-color 0.2s",
         position: "relative",
         overflow: "hidden",
@@ -64,7 +64,7 @@ function TiltCard({ children, borderColor }: { children: React.ReactNode; border
         style={{
           position: "absolute",
           inset: 0,
-          background: `radial-gradient(circle at ${hovered ? "var(--mx,50%) var(--my,50%)" : "50% 0%"}, rgba(255,255,255,0.06) 0%, transparent 70%)`,
+          background: `radial-gradient(circle at ${hovered ? "var(--mx,50%) var(--my,50%)" : "50% 0%"}, rgba(47,62,52,0.04) 0%, transparent 70%)`,
           pointerEvents: "none",
           zIndex: 0,
           opacity: hovered ? 1 : 0,
@@ -85,13 +85,12 @@ function ScoreRing({ score, color, size = 48 }: { score: number; color: string; 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={4} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(47,62,52,0.1)" strokeWidth={4} />
         <circle
           cx={size / 2} cy={size / 2} r={radius} fill="none"
           stroke={color} strokeWidth={4} strokeLinecap="round"
           strokeDasharray={`${strokeDash} ${circumference}`}
           strokeDashoffset={circumference * 0.25}
-          style={{ filter: `drop-shadow(0 0 4px ${color}60)` }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style={{ color }}>
@@ -121,20 +120,20 @@ interface TrialCardProps {
 export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: TrialCardProps) {
   const matchResult = trial.match_result;
   const hasResult = !!matchResult;
-  const recColor = hasResult ? getRecommendationColor(matchResult.recommendation) : "#64748B";
+  const recColor = hasResult ? getRecommendationColor(matchResult.recommendation) : "#8B7765";
   const recLabel = hasResult ? getRecommendationLabel(matchResult.recommendation) : null;
   const firstLocation = trial.locations[0];
   const locationCount = trial.locations.length;
 
   return (
-    <TiltCard borderColor={hasResult ? `${recColor}50` : "rgba(20,184,166,0.3)"}>
+    <TiltCard borderColor={hasResult ? `${recColor}50` : "rgba(47,62,52,0.25)"}>
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
         {hasResult ? (
           <ScoreRing score={matchResult.overall_score} color={recColor} />
         ) : (
-          <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
-            <span className="text-xs text-[#64748B]">—</span>
+          <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center shrink-0" style={{ borderColor: "rgba(47,62,52,0.12)" }}>
+            <span className="text-xs text-[#B1A79F]">—</span>
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -149,26 +148,26 @@ export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: Tria
               </Badge>
             )}
           </div>
-          <h3 className="text-xs font-semibold text-[#F1F5F9] leading-snug line-clamp-2">{trial.title}</h3>
+          <h3 className="text-xs font-semibold text-[#2F3E34] leading-snug line-clamp-2">{trial.title}</h3>
         </div>
       </div>
 
       {/* Sponsor + NCT */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] text-[#64748B] truncate max-w-[60%]">{trial.sponsor}</span>
-        <a href={trial.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#14B8A6] hover:text-[#2DD4BF] transition-colors" onClick={(e) => e.stopPropagation()}>
+        <span className="text-[10px] text-[#B1A79F] truncate max-w-[60%]">{trial.sponsor}</span>
+        <a href={trial.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#6B7F6A] hover:text-[#2F3E34] transition-colors" onClick={(e) => e.stopPropagation()}>
           {trial.nct_id} ↗
         </a>
       </div>
 
-      <p className="text-[10px] text-[#94A3B8] mb-2.5 line-clamp-2 leading-relaxed">{truncate(trial.brief_summary, 130)}</p>
+      <p className="text-[10px] text-[#8B7765] mb-2.5 line-clamp-2 leading-relaxed">{truncate(trial.brief_summary, 130)}</p>
 
       {hasResult && matchResult.key_concerns.length > 0 && (
         <div className="mb-2.5 space-y-1">
           {matchResult.key_concerns.slice(0, 2).map((concern, idx) => (
             <div key={idx} className="flex items-start gap-1.5">
-              <span className="text-[#FBBF24] text-[10px] mt-0.5">⚠</span>
-              <span className="text-[10px] text-[#94A3B8] leading-relaxed">{truncate(concern, 80)}</span>
+              <span className="text-[10px] mt-0.5" style={{ color: "#C1843A" }}>⚠</span>
+              <span className="text-[10px] text-[#8B7765] leading-relaxed">{truncate(concern, 80)}</span>
             </div>
           ))}
         </div>
@@ -177,10 +176,10 @@ export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: Tria
       {firstLocation && (
         <div className="flex items-center gap-1.5 mb-3">
           <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#64748B" strokeWidth="2" />
-            <circle cx="12" cy="10" r="3" stroke="#64748B" strokeWidth="2" />
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="#B1A79F" strokeWidth="2" />
+            <circle cx="12" cy="10" r="3" stroke="#B1A79F" strokeWidth="2" />
           </svg>
-          <span className="text-[10px] text-[#64748B]">{firstLocation.city}, {firstLocation.state}{locationCount > 1 && ` +${locationCount - 1} more`}</span>
+          <span className="text-[10px] text-[#B1A79F]">{firstLocation.city}, {firstLocation.state}{locationCount > 1 && ` +${locationCount - 1} more`}</span>
         </div>
       )}
 
@@ -189,9 +188,9 @@ export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: Tria
           onClick={() => onAnalyze(trial)}
           disabled={isAnalyzing}
           className="flex-1 py-2 rounded-lg text-[10px] font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-          style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
+          style={{ background: "rgba(47,62,52,0.08)", color: "#2F3E34", border: "1px solid rgba(47,62,52,0.15)" }}
         >
-          {isAnalyzing ? <><LoadingSpinner size="sm" color="#14B8A6" />Analyzing...</> : hasResult ? "Re-analyze" : "Analyze Eligibility"}
+          {isAnalyzing ? <><LoadingSpinner size="sm" color="#2F3E34" />Analyzing...</> : hasResult ? "Re-analyze" : "Analyze Eligibility"}
         </button>
         {hasResult && (
           <button
