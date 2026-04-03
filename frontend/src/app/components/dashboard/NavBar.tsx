@@ -9,6 +9,7 @@ interface NavBarProps {
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "trials", label: "Clinical Trials" },
+  { id: "support", label: "Find Support" },
   { id: "scenario", label: "Scenario Builder" },
 ];
 

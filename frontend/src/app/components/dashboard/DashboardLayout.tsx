@@ -6,12 +6,13 @@ import { VitalSignGrid } from "./VitalSignGrid";
 import { BiomarkerPanel } from "./BiomarkerPanel";
 import { ScenarioBuilder } from "./ScenarioBuilder";
 import { TrialList } from "./TrialList";
+import { FindSupport } from "./FindSupport";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { getEcogLabel } from "../../../lib/utils";
 import { HealthDocumentUpload } from "../shared/HealthDocumentUpload";
 import { HealthChat } from "./HealthChat";
 
-type Tab = "overview" | "trials" | "scenario";
+type Tab = "overview" | "trials" | "support" | "scenario";
 
 interface DashboardLayoutProps {
   onRetakeIntake: () => void;
@@ -25,14 +26,14 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
   if (!twin) return null;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className={`min-h-screen ${activeTab === "support" ? "bg-[#0F172A]" : "bg-[#F9FAFB]"}`}>
       <NavBar
         activeTab={activeTab}
         onTabChange={(t) => setActiveTab(t as Tab)}
         onRetakeIntake={onRetakeIntake}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main className={activeTab === "support" ? "" : "max-w-7xl mx-auto px-4 sm:px-6 py-6"}>
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-6">
@@ -182,6 +183,9 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
             </div>
           </div>
         )}
+
+        {/* Find Support Tab */}
+        {activeTab === "support" && <FindSupport />}
 
         {/* Clinical Trials Tab */}
         {activeTab === "trials" && (
