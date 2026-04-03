@@ -1,0 +1,24 @@
+{
+  "name": "cliniq",
+  "private": true,
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "cd frontend && NODE_ENV=development node_modules/.bin/vite",
+    "dev:backend": "PORT=3001 node_modules/.bin/ts-node-dev --respawn --transpile-only --project backend/tsconfig.json backend/src/index.ts",
+    "install:all": "npm install && cd frontend && npm install"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@botpress/adk": "^1.17.0",
+    "@types/multer": "^2.1.0",
+    "@types/pdf-parse": "^1.1.5",
+    "multer": "^2.1.1",
+    "pdf-parse": "^1.1.4"
+  }
+}

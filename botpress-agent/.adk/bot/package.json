@@ -1,0 +1,11 @@
+{
+  "name": "@bp-templates/cliniq-health-assistant-bot",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
