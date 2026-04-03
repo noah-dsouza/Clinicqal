@@ -89,3 +89,15 @@ export async function analyzeEligibility(
     body: JSON.stringify({ session_id: sessionId, trial }),
   });
 }
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+export interface ChatResponse {
+  reply: string;
+}
+
+export async function sendChatMessage(message: string, twin?: DigitalTwin | null): Promise<ChatResponse> {
+  return fetchJson<ChatResponse>("/api/chat", {
+    method: "POST",
+    body: JSON.stringify({ message, twin }),
+  });
+}
