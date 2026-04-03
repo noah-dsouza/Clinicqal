@@ -56,7 +56,7 @@ export function useTrialSearch(): UseTrialSearchReturn {
       setError(null);
 
       try {
-        const response = await analyzeEligibility(sessionId, trial);
+        const response = await analyzeEligibility(sessionId, trial, twin ?? null);
         setTrials((prev) =>
           prev.map((t) =>
             t.nct_id === trial.nct_id

@@ -10,18 +10,24 @@ const router = Router();
 
 router.post("/analyze-single", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { session_id, nct_id, trial } = req.body as {
-      session_id: string;
+    const { session_id, nct_id, trial, twin: twinPayload } = req.body as {
+      session_id?: string;
       nct_id?: string;
       trial?: ClinicalTrial;
+      twin?: DigitalTwin;
     };
 
-    if (!session_id) {
+    const providedSessionId = session_id || (twinPayload ? `client-${twinPayload.session_id || Date.now()}` : undefined);
+    if (!providedSessionId) {
       res.status(400).json({ error: "session_id is required" });
       return;
     }
 
-    const twin = sessionStore.get(session_id);
+    let twin = sessionStore.get(providedSessionId);
+    if (!twin && twinPayload) {
+      twin = twinPayload;
+      sessionStore.set(providedSessionId, twin);
+    }
     if (!twin) {
       res.status(404).json({ error: "Session not found or expired" });
       return;
@@ -42,7 +48,7 @@ router.post("/analyze-single", async (req: Request, res: Response): Promise<void
       return;
     }
 
-    console.log(`[Eligibility] Analyzing ${targetTrial.nct_id} for session ${session_id}`);
+    console.log(`[Eligibility] Analyzing ${targetTrial.nct_id} for session ${providedSessionId}`);
 
     let matchResult: MatchResult | null = null;
     let primaryError: Error | null = null;

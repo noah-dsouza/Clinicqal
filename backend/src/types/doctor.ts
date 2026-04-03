@@ -7,6 +7,7 @@ export interface DoctorResult {
   rating?: number;
   reviews?: number;
   website?: string;
+  email?: string;
   accepting_patients: boolean;
   distance?: string;
   source: string;

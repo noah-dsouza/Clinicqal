@@ -1,4 +1,3 @@
-import React from "react";
 import { VitalSignCard } from "./VitalSignCard";
 import { IntakeFormData } from "../../../types/intake";
 

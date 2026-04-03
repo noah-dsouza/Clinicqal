@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DigitalTwin } from "../types/digitalTwin";
 import { ClinicalTrial, MatchResult, CriterionMatch } from "../types/trial";
+import { groqEligibilityAnalysis, isGroqReady } from "./groqService";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -212,6 +213,43 @@ function calculateFallbackScore(twin: DigitalTwin, trial: ClinicalTrial): number
   return Math.max(0, Math.min(100, baseScore + variance));
 }
 
+function buildFallbackConcerns(trial: ClinicalTrial): string[] {
+  const concerns: string[] = [];
+  const exclusionText = trial.exclusion_criteria || "";
+  const inclusionText = trial.inclusion_criteria || "";
+
+  const extractSentences = (text: string): string[] =>
+    text
+      .split(/[\n•\-]+/)
+      .map((line) => line.replace(/^[\d.\)]+\s*/, "").trim())
+      .filter((line) => line.length > 8)
+      .slice(0, 4);
+
+  const exclusionSentences = extractSentences(exclusionText);
+  for (const sentence of exclusionSentences) {
+    concerns.push(`Potential exclusion: ${sentence}`);
+    if (concerns.length >= 2) break;
+  }
+
+  if (concerns.length < 2) {
+    const inclusionSentences = extractSentences(inclusionText).filter((line) => /lab|organ|therapy|treatment|history/i.test(line));
+    for (const sentence of inclusionSentences) {
+      concerns.push(`Eligibility watch-out: ${sentence}`);
+      if (concerns.length >= 2) break;
+    }
+  }
+
+  if (concerns.length === 0 && trial.brief_summary) {
+    concerns.push(`Review protocol risks noted in summary: ${trial.brief_summary.split(/\.\s+/)[0]}`);
+  }
+
+  while (concerns.length < 2) {
+    concerns.push("Confirm lab values, medications, and comorbidities with the study coordinator before enrollment.");
+  }
+
+  return concerns.slice(0, 3);
+}
+
 export async function analyzeEligibility(
   twin: DigitalTwin,
   trial: ClinicalTrial
@@ -292,15 +330,27 @@ Provide a comprehensive eligibility analysis in the required JSON format. Rememb
     };
   } catch (error) {
     console.error("Claude eligibility analysis error:", error);
-    // Fallback to keyword-based scoring
+
+    if (isGroqReady()) {
+      try {
+        const groqResult = await groqEligibilityAnalysis(twin, trial);
+        if (groqResult) {
+          return groqResult;
+        }
+      } catch (groqError) {
+        console.error("Groq eligibility fallback error:", groqError);
+      }
+    }
+
     const fallbackScore = calculateFallbackScore(twin, trial);
+    const fallbackConcerns = buildFallbackConcerns(trial);
     return {
       trial_nct_id: trial.nct_id,
       overall_score: fallbackScore,
       inclusion_matches: [],
       exclusion_matches: [],
       plain_english_summary: `Preliminary AI analysis using pattern matching. Score: ${fallbackScore}/100. For detailed eligibility assessment, please consult with the trial coordinator.`,
-      key_concerns: ["Detailed Claude AI analysis unavailable - using keyword matching fallback"],
+      key_concerns: fallbackConcerns,
       recommendation: fallbackScore >= 70 ? "possible_match" : fallbackScore >= 40 ? "possible_match" : "unlikely",
     };
   }

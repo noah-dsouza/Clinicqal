@@ -123,17 +123,17 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
             </DarkCard>
 
             {/* Row 3: Vitals */}
-            <DarkCard title="Vital Signs">
+            <DarkCard title="Vital Signs" glow={false}>
               <VitalSignGrid vitals={twin.intake.vitals} />
             </DarkCard>
 
             {/* Row 4: Labs */}
-            <DarkCard title="Lab Results">
+            <DarkCard title="Lab Results" glow={false}>
               <BiomarkerPanel labs={twin.intake.labs} />
             </DarkCard>
 
             {/* Row 5: Lifestyle */}
-            <DarkCard title="Lifestyle">
+            <DarkCard title="Lifestyle" glow={false}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <LifestyleChip label="Smoking" value={twin.intake.lifestyle.smoking_status} good={twin.intake.lifestyle.smoking_status === "never"} bad={twin.intake.lifestyle.smoking_status === "current"} />
                 <LifestyleChip label="Alcohol" value={twin.intake.lifestyle.alcohol_use} good={twin.intake.lifestyle.alcohol_use === "none"} bad={twin.intake.lifestyle.alcohol_use === "heavy"} />
@@ -225,22 +225,24 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-function DarkCard({ title, children, accent = "#14B8A6" }: { title: string; children: React.ReactNode; accent?: string }) {
+function DarkCard({ title, children, accent = "#14B8A6", glow = true }: { title: string; children: React.ReactNode; accent?: string; glow?: boolean }) {
   return (
     <motion.div
       className="relative rounded-2xl border overflow-hidden group"
       style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.07)" }}
       whileHover={{
         borderColor: `${accent}aa`,
-        boxShadow: `0 30px 65px ${accent}33, 0 0 25px ${accent}22`,
+        boxShadow: glow ? `0 30px 65px ${accent}33, 0 0 25px ${accent}22` : "none",
         y: -4,
       }}
       transition={{ type: "spring", stiffness: 320, damping: 26 }}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-80 transition-opacity duration-300"
-        style={{ background: `radial-gradient(circle at 30% 0%, ${accent}29, transparent 65%)` }}
-      />
+      {glow && (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-80 transition-opacity duration-300"
+          style={{ background: `radial-gradient(circle at 30% 0%, ${accent}29, transparent 65%)` }}
+        />
+      )}
       <div className="relative p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>{title}</h3>

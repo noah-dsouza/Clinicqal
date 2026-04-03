@@ -12,6 +12,7 @@ interface DoctorResult {
   rating?: number;
   reviews?: number;
   website?: string;
+  email?: string;
   accepting_patients: boolean;
   distance?: string;
   source: string;
@@ -462,6 +463,7 @@ function TrialMatchCard({
 function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
   const telHref =
     doctor.phone && /[\d+]/.test(doctor.phone) ? `tel:${doctor.phone.replace(/[^+\d]/g, "")}` : null;
+  const emailHref = doctor.email ? `mailto:${doctor.email}` : null;
   return (
     <TiltCard active={false} borderColor="rgba(20,184,166,0.15)" bg="#1E293B">
       <div className="p-4">
@@ -496,22 +498,20 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
           </p>
         </div>
         <div className="mt-3 flex flex-col sm:flex-row gap-2">
-          {doctor.website ? (
+          {emailHref ? (
             <a
-              href={doctor.website}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={emailHref}
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
               style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
             >
-              Visit Website ↗
+              Email Clinic
             </a>
           ) : (
             <div
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
               style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}
             >
-              No website listed
+              Email unavailable
             </div>
           )}
           {telHref ? (

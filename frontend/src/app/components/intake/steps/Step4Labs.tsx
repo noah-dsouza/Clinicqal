@@ -1,4 +1,3 @@
-import React from "react";
 import { IntakeFormData } from "../../../../types/intake";
 
 type Lab = IntakeFormData["labs"][number];

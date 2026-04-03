@@ -1,5 +1,5 @@
-import React, { useRef, useState, useCallback } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useRef, useState, useCallback, type MutableRefObject, type ReactNode } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { BodySystem } from "../../../types/digitalTwin";
@@ -8,18 +8,6 @@ interface BodyVisualizationProps {
   bodySystems: BodySystem[];
   onSystemClick?: (system: BodySystem) => void;
 }
-
-// Map system names to body part groups
-const SYSTEM_PARTS: Record<string, string[]> = {
-  Neurological: ["head", "neck"],
-  Cardiovascular: ["torso_upper"],
-  Pulmonary: ["torso_mid"],
-  Hepatic: ["torso_lower_right"],
-  Renal: ["torso_lower_left"],
-  "Endocrine/Metabolic": ["torso_lower"],
-  Hematologic: ["torso_upper", "torso_mid", "torso_lower"],
-  Oncologic: ["torso_upper", "torso_mid"],
-};
 
 function getStatusColor(status: BodySystem["status"]): { color: string; emissive: string; emissiveIntensity: number } {
   switch (status) {
@@ -39,11 +27,8 @@ interface BodyPartProps {
   geometry: "sphere" | "cylinder" | "box" | "capsule";
   args: number[];
   systemName?: string;
-  partName: string;
   systemMap: Map<string, BodySystem>;
-  onHover: (name: string | null, system: BodySystem | null) => void;
   onClick: (system: BodySystem) => void;
-  mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }
 
 function BodyPart({
@@ -51,11 +36,8 @@ function BodyPart({
   geometry,
   args,
   systemName,
-  partName,
   systemMap,
-  onHover,
   onClick,
-  mousePos,
 }: BodyPartProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
@@ -82,7 +64,7 @@ function BodyPart({
     );
   });
 
-  let geoNode: React.ReactNode;
+  let geoNode: ReactNode;
   if (geometry === "sphere") {
     geoNode = <sphereGeometry args={[args[0], 32, 32]} />;
   } else if (geometry === "cylinder") {
@@ -101,12 +83,10 @@ function BodyPart({
       onPointerOver={(e) => {
         e.stopPropagation();
         setHovered(true);
-        onHover(systemName ?? partName, system ?? null);
         document.body.style.cursor = "pointer";
       }}
       onPointerOut={() => {
         setHovered(false);
-        onHover(null, null);
         document.body.style.cursor = "default";
       }}
       onClick={(e) => {
@@ -156,14 +136,12 @@ function BodyPart({
 
 interface HeadGroupProps {
   systemMap: Map<string, BodySystem>;
-  onHover: (name: string | null, system: BodySystem | null) => void;
   onClick: (system: BodySystem) => void;
-  mousePos: React.MutableRefObject<{ x: number; y: number }>;
+  mousePos: MutableRefObject<{ x: number; y: number }>;
 }
 
-function HeadGroup({ systemMap, onHover, onClick, mousePos }: HeadGroupProps) {
+function HeadGroup({ systemMap, onClick, mousePos }: HeadGroupProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const { camera } = useThree();
 
   useFrame(() => {
     if (!groupRef.current) return;
@@ -181,11 +159,8 @@ function HeadGroup({ systemMap, onHover, onClick, mousePos }: HeadGroupProps) {
         geometry="sphere"
         args={[0.4]}
         systemName="Neurological"
-        partName="head"
         systemMap={systemMap}
-        onHover={onHover}
         onClick={onClick}
-        mousePos={mousePos}
       />
       {/* Neck */}
       <BodyPart
@@ -193,11 +168,9 @@ function HeadGroup({ systemMap, onHover, onClick, mousePos }: HeadGroupProps) {
         geometry="cylinder"
         args={[0.15, 0.18, 0.2]}
         systemName="Neurological"
-        partName="neck"
+       
         systemMap={systemMap}
-        onHover={onHover}
         onClick={onClick}
-        mousePos={mousePos}
       />
     </group>
   );
@@ -207,13 +180,8 @@ function Body3DScene({
   bodySystems,
   onSystemClick,
   mousePos,
-}: BodyVisualizationProps & { mousePos: React.MutableRefObject<{ x: number; y: number }> }) {
-  const [tooltip, setTooltip] = useState<{ name: string; system: BodySystem | null } | null>(null);
+}: BodyVisualizationProps & { mousePos: MutableRefObject<{ x: number; y: number }> }) {
   const systemMap = new Map((bodySystems ?? []).map((s) => [s.system, s]));
-
-  const handleHover = useCallback((name: string | null, system: BodySystem | null) => {
-    setTooltip(name ? { name, system } : null);
-  }, []);
 
   const handleClick = useCallback(
     (system: BodySystem) => {
@@ -222,7 +190,7 @@ function Body3DScene({
     [onSystemClick]
   );
 
-  const partProps = { systemMap, onHover: handleHover, onClick: handleClick, mousePos };
+  const partProps = { systemMap, onClick: handleClick };
 
   return (
     <>
@@ -233,49 +201,49 @@ function Body3DScene({
 
       <Environment preset="city" />
 
-      <HeadGroup {...partProps} />
+      <HeadGroup systemMap={systemMap} onClick={handleClick} mousePos={mousePos} />
 
       {/* Torso upper - Cardiovascular */}
-      <BodyPart position={[0, 0.95, 0]} geometry="box" args={[0.9, 0.35, 0.4]} systemName="Cardiovascular" partName="torso_upper" {...partProps} />
+      <BodyPart position={[0, 0.95, 0]} geometry="box" args={[0.9, 0.35, 0.4]} systemName="Cardiovascular" {...partProps} />
       {/* Torso mid - Pulmonary */}
-      <BodyPart position={[0, 0.62, 0]} geometry="box" args={[0.85, 0.32, 0.38]} systemName="Pulmonary" partName="torso_mid" {...partProps} />
+      <BodyPart position={[0, 0.62, 0]} geometry="box" args={[0.85, 0.32, 0.38]} systemName="Pulmonary" {...partProps} />
       {/* Torso lower right - Hepatic */}
-      <BodyPart position={[0.22, 0.32, 0]} geometry="box" args={[0.38, 0.28, 0.35]} systemName="Hepatic" partName="torso_lower_right" {...partProps} />
+      <BodyPart position={[0.22, 0.32, 0]} geometry="box" args={[0.38, 0.28, 0.35]} systemName="Hepatic" {...partProps} />
       {/* Torso lower left - Renal */}
-      <BodyPart position={[-0.22, 0.32, 0]} geometry="box" args={[0.38, 0.28, 0.35]} systemName="Renal" partName="torso_lower_left" {...partProps} />
+      <BodyPart position={[-0.22, 0.32, 0]} geometry="box" args={[0.38, 0.28, 0.35]} systemName="Renal" {...partProps} />
       {/* Torso lower - Endocrine */}
-      <BodyPart position={[0, 0.1, 0]} geometry="box" args={[0.8, 0.22, 0.36]} systemName="Endocrine/Metabolic" partName="torso_lower" {...partProps} />
+      <BodyPart position={[0, 0.1, 0]} geometry="box" args={[0.8, 0.22, 0.36]} systemName="Endocrine/Metabolic" {...partProps} />
 
       {/* Pelvis */}
-      <BodyPart position={[0, -0.1, 0]} geometry="cylinder" args={[0.4, 0.35, 0.25]} systemName="Endocrine/Metabolic" partName="pelvis" {...partProps} />
+      <BodyPart position={[0, -0.1, 0]} geometry="cylinder" args={[0.4, 0.35, 0.25]} systemName="Endocrine/Metabolic" {...partProps} />
 
       {/* Shoulders */}
-      <BodyPart position={[0.7, 1.2, 0]} geometry="sphere" args={[0.2]} partName="shoulder_l" {...partProps} />
-      <BodyPart position={[-0.7, 1.2, 0]} geometry="sphere" args={[0.2]} partName="shoulder_r" {...partProps} />
+      <BodyPart position={[0.7, 1.2, 0]} geometry="sphere" args={[0.2]} {...partProps} />
+      <BodyPart position={[-0.7, 1.2, 0]} geometry="sphere" args={[0.2]} {...partProps} />
 
       {/* Upper arms */}
-      <BodyPart position={[0.82, 0.75, 0]} geometry="cylinder" args={[0.12, 0.1, 0.55]} partName="upper_arm_l" {...partProps} />
-      <BodyPart position={[-0.82, 0.75, 0]} geometry="cylinder" args={[0.12, 0.1, 0.55]} partName="upper_arm_r" {...partProps} />
+      <BodyPart position={[0.82, 0.75, 0]} geometry="cylinder" args={[0.12, 0.1, 0.55]} {...partProps} />
+      <BodyPart position={[-0.82, 0.75, 0]} geometry="cylinder" args={[0.12, 0.1, 0.55]} {...partProps} />
 
       {/* Lower arms */}
-      <BodyPart position={[0.88, 0.28, 0]} geometry="cylinder" args={[0.1, 0.08, 0.5]} partName="lower_arm_l" {...partProps} />
-      <BodyPart position={[-0.88, 0.28, 0]} geometry="cylinder" args={[0.1, 0.08, 0.5]} partName="lower_arm_r" {...partProps} />
+      <BodyPart position={[0.88, 0.28, 0]} geometry="cylinder" args={[0.1, 0.08, 0.5]} {...partProps} />
+      <BodyPart position={[-0.88, 0.28, 0]} geometry="cylinder" args={[0.1, 0.08, 0.5]} {...partProps} />
 
       {/* Hands */}
-      <BodyPart position={[0.9, -0.02, 0]} geometry="sphere" args={[0.1]} partName="hand_l" {...partProps} />
-      <BodyPart position={[-0.9, -0.02, 0]} geometry="sphere" args={[0.1]} partName="hand_r" {...partProps} />
+      <BodyPart position={[0.9, -0.02, 0]} geometry="sphere" args={[0.1]} {...partProps} />
+      <BodyPart position={[-0.9, -0.02, 0]} geometry="sphere" args={[0.1]} {...partProps} />
 
       {/* Upper legs */}
-      <BodyPart position={[0.25, -0.52, 0]} geometry="cylinder" args={[0.18, 0.15, 0.7]} partName="upper_leg_l" {...partProps} />
-      <BodyPart position={[-0.25, -0.52, 0]} geometry="cylinder" args={[0.18, 0.15, 0.7]} partName="upper_leg_r" {...partProps} />
+      <BodyPart position={[0.25, -0.52, 0]} geometry="cylinder" args={[0.18, 0.15, 0.7]} {...partProps} />
+      <BodyPart position={[-0.25, -0.52, 0]} geometry="cylinder" args={[0.18, 0.15, 0.7]} {...partProps} />
 
       {/* Lower legs */}
-      <BodyPart position={[0.25, -1.12, 0]} geometry="cylinder" args={[0.13, 0.1, 0.65]} partName="lower_leg_l" {...partProps} />
-      <BodyPart position={[-0.25, -1.12, 0]} geometry="cylinder" args={[0.13, 0.1, 0.65]} partName="lower_leg_r" {...partProps} />
+      <BodyPart position={[0.25, -1.12, 0]} geometry="cylinder" args={[0.13, 0.1, 0.65]} {...partProps} />
+      <BodyPart position={[-0.25, -1.12, 0]} geometry="cylinder" args={[0.13, 0.1, 0.65]} {...partProps} />
 
       {/* Feet */}
-      <BodyPart position={[0.25, -1.48, 0.08]} geometry="box" args={[0.2, 0.08, 0.35]} partName="foot_l" {...partProps} />
-      <BodyPart position={[-0.25, -1.48, 0.08]} geometry="box" args={[0.2, 0.08, 0.35]} partName="foot_r" {...partProps} />
+      <BodyPart position={[0.25, -1.48, 0.08]} geometry="box" args={[0.2, 0.08, 0.35]} {...partProps} />
+      <BodyPart position={[-0.25, -1.48, 0.08]} geometry="box" args={[0.2, 0.08, 0.35]} {...partProps} />
 
       <OrbitControls
         enablePan={false}

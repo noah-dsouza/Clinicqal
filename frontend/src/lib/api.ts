@@ -82,11 +82,14 @@ export interface EligibilityAnalysisResponse {
 
 export async function analyzeEligibility(
   sessionId: string,
-  trial: ClinicalTrial
+  trial: ClinicalTrial,
+  twin?: DigitalTwin | null
 ): Promise<EligibilityAnalysisResponse> {
+  const payload: Record<string, unknown> = { session_id: sessionId, trial };
+  if (twin) payload.twin = twin;
   return fetchJson<EligibilityAnalysisResponse>("/api/eligibility/analyze-single", {
     method: "POST",
-    body: JSON.stringify({ session_id: sessionId, trial }),
+    body: JSON.stringify(payload),
   });
 }
 

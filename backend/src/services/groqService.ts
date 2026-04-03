@@ -115,6 +115,7 @@ export async function groqDoctorFallback(
           "specialty": "string",
           "address": "string",
           "phone": "string",
+          "email": "string",
           "rating": number,
           "reviews": number,
           "website": "string",

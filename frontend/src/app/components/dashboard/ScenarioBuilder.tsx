@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { applyScenario, ScenarioPayload } from "../../../lib/api";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
