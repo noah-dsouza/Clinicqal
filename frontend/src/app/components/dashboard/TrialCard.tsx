@@ -1,14 +1,82 @@
+import { useRef, useState } from "react";
+import { motion, useSpring, useTransform } from "framer-motion";
 import { ClinicalTrial } from "../../../types/trial";
 import { Badge } from "../shared/Badge";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { getRecommendationColor, getRecommendationLabel, formatPhase, truncate } from "../../../lib/utils";
 
-interface TrialCardProps {
-  trial: ClinicalTrial;
-  isAnalyzing: boolean;
-  onAnalyze: (trial: ClinicalTrial) => void;
-  onViewDetails: (trial: ClinicalTrial) => void;
+// ── 3D Tilt wrapper ───────────────────────────────────────────────────────────
+
+function TiltCard({ children, borderColor }: { children: React.ReactNode; borderColor: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
+
+  const rawX = useSpring(0, { stiffness: 300, damping: 30 });
+  const rawY = useSpring(0, { stiffness: 300, damping: 30 });
+  const scale = useSpring(1, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(rawY, (v) => `${v}deg`);
+  const rotateY = useTransform(rawX, (v) => `${v}deg`);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 18;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * -18;
+    rawX.set(x);
+    rawY.set(y);
+  };
+
+  const handleMouseEnter = () => {
+    setHovered(true);
+    scale.set(1.025);
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    rawX.set(0);
+    rawY.set(0);
+    scale.set(1);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        scale,
+        transformStyle: "preserve-3d",
+        transformPerspective: 800,
+        borderRadius: 12,
+        border: `1px solid ${hovered ? borderColor : "rgba(255,255,255,0.07)"}`,
+        background: "#1E293B",
+        transition: "border-color 0.2s",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Gloss highlight */}
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `radial-gradient(circle at ${hovered ? "var(--mx,50%) var(--my,50%)" : "50% 0%"}, rgba(255,255,255,0.06) 0%, transparent 70%)`,
+          pointerEvents: "none",
+          zIndex: 0,
+          opacity: hovered ? 1 : 0,
+          transition: "opacity 0.2s",
+        }}
+      />
+      <div style={{ position: "relative", zIndex: 1, padding: 16 }}>{children}</div>
+    </motion.div>
+  );
 }
+
+// ── Score ring ────────────────────────────────────────────────────────────────
 
 function ScoreRing({ score, color, size = 48 }: { score: number; color: string; size?: number }) {
   const radius = (size - 8) / 2;
@@ -41,6 +109,15 @@ function getPhaseVariant(phase: string): "violet" | "blue" | "teal" | "muted" {
   return "muted";
 }
 
+// ── Main card ─────────────────────────────────────────────────────────────────
+
+interface TrialCardProps {
+  trial: ClinicalTrial;
+  isAnalyzing: boolean;
+  onAnalyze: (trial: ClinicalTrial) => void;
+  onViewDetails: (trial: ClinicalTrial) => void;
+}
+
 export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: TrialCardProps) {
   const matchResult = trial.match_result;
   const hasResult = !!matchResult;
@@ -50,13 +127,7 @@ export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: Tria
   const locationCount = trial.locations.length;
 
   return (
-    <div
-      className="rounded-xl border p-4 transition-all duration-200"
-      style={{
-        background: "#1E293B",
-        borderColor: hasResult ? `${recColor}30` : "rgba(255,255,255,0.07)",
-      }}
-    >
+    <TiltCard borderColor={hasResult ? `${recColor}50` : "rgba(20,184,166,0.3)"}>
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
         {hasResult ? (
@@ -132,6 +203,6 @@ export function TrialCard({ trial, isAnalyzing, onAnalyze, onViewDetails }: Tria
           </button>
         )}
       </div>
-    </div>
+    </TiltCard>
   );
 }
