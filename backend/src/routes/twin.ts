@@ -6,7 +6,13 @@ import { IntakeFormData } from "../types/intake";
 const router = Router();
 
 router.get("/:sessionId", (req: Request, res: Response): void => {
-  const { sessionId } = req.params;
+  const sessionIdParam = req.params.sessionId;
+  const sessionId = Array.isArray(sessionIdParam) ? sessionIdParam[0] : sessionIdParam;
+
+  if (!sessionId) {
+    res.status(400).json({ error: "sessionId is required" });
+    return;
+  }
 
   const twin = sessionStore.get(sessionId);
   if (!twin) {
@@ -19,7 +25,13 @@ router.get("/:sessionId", (req: Request, res: Response): void => {
 
 router.put("/:sessionId/scenario", (req: Request, res: Response): void => {
   try {
-    const { sessionId } = req.params;
+    const sessionIdParam = req.params.sessionId;
+    const sessionId = Array.isArray(sessionIdParam) ? sessionIdParam[0] : sessionIdParam;
+
+    if (!sessionId) {
+      res.status(400).json({ error: "sessionId is required" });
+      return;
+    }
 
     const existingTwin = sessionStore.get(sessionId);
     if (!existingTwin) {

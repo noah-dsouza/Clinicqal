@@ -4,14 +4,16 @@
   "description": "ClinIQ AI Health Assistant built with Botpress ADK",
   "type": "module",
   "scripts": {
-    "dev": "adk dev",
-    "build": "adk build",
-    "deploy": "adk deploy"
+    "dev": "bp dev --workDir ./.adk/bot",
+    "build": "bp build --workDir ./.adk/bot",
+    "deploy": "bp deploy --workDir ./.adk/bot",
+    "login": "bp login"
   },
   "dependencies": {
     "@botpress/runtime": "^1.17.0"
   },
   "devDependencies": {
+    "@botpress/adk": "^1.17.0",
     "typescript": "^5.9.3"
   }
 }

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import { DigitalTwin } from "../types/digitalTwin";
+import { groqChatReply, isGroqReady } from "../services/groqService";
 
 const router = Router();
 
@@ -50,21 +51,26 @@ Answer questions about this patient's specific health data concisely and helpful
 
 router.post("/", async (req: Request, res: Response): Promise<void> => {
   const { message, twin } = req.body as { message: string; twin?: DigitalTwin };
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
   if (!message?.trim()) {
     res.status(400).json({ error: "Message is required" });
     return;
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    // Rule-based fallback when no API key
+  if (!anthropicKey) {
+    const groqReply = await getGroqFallback(message, twin ?? null);
+    if (groqReply) {
+      res.json({ reply: groqReply });
+      return;
+    }
     const reply = getRuleBasedReply(message, twin ?? null);
     res.json({ reply });
     return;
   }
 
   try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: anthropicKey });
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 400,
@@ -76,13 +82,18 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     res.json({ reply });
   } catch (err: unknown) {
     const message_text = (err as { message?: string }).message ?? "";
+    console.error("[Chat Error]", err);
+    const groqReply = await getGroqFallback(message, twin ?? null);
+    if (groqReply) {
+      res.json({ reply: groqReply });
+      return;
+    }
     // Credit exhausted or quota — fall back gracefully rather than 500
     if (message_text.includes("credit") || message_text.includes("quota") || message_text.includes("billing")) {
-      const reply = getRuleBasedReply((req.body as { message: string }).message, (req.body as { twin?: DigitalTwin }).twin ?? null);
+      const reply = getRuleBasedReply(message, twin ?? null);
       res.json({ reply });
       return;
     }
-    console.error("[Chat Error]", err);
     res.status(500).json({ error: "Failed to generate response" });
   }
 });
@@ -115,6 +126,17 @@ function getRuleBasedReply(message: string, twin: DigitalTwin | null): string {
   }
 
   return `I can answer questions about your health score (${twin.health_score.overall}/100), lab results, medications, BMI, or clinical trial eligibility. What would you like to know? Note: add your Anthropic API key to .env for full AI responses.`;
+}
+
+async function getGroqFallback(message: string, twin: DigitalTwin | null): Promise<string | null> {
+  if (!isGroqReady()) return null;
+  try {
+    const reply = await groqChatReply(message, twin);
+    return reply;
+  } catch (err) {
+    console.error("[Chat] Groq fallback failed", err);
+    return null;
+  }
 }
 
 export default router;

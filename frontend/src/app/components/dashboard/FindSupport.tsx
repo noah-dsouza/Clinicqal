@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { DigitalTwin } from "../../../types/digitalTwin";
+import { openBotpressChat } from "../../../lib/botpress";
 
 interface DoctorResult {
   id: string;
@@ -503,7 +504,15 @@ function TiltCard({ children, active, borderColor, bg, shadow }: { children: Rea
 
 // ─── Expandable Trial Card ──────────────────────────────────────────────────
 
-function TrialMatchCard({ trial, expanded, onToggle }: { trial: TrialMatch; expanded: boolean; onToggle: () => void }) {
+function TrialMatchCard({
+  trial,
+  expanded,
+  onToggle,
+}: {
+  trial: TrialMatch;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
   const color = scoreColor(trial.matchScore);
   const label = scoreLabel(trial.matchScore);
 
@@ -618,24 +627,17 @@ function TrialMatchCard({ trial, expanded, onToggle }: { trial: TrialMatch; expa
             </div>
           </div>
 
-          <div className="flex gap-2 pt-1">
+          <div className="pt-1">
             <a
               href={trial.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 py-2 rounded-xl text-xs font-semibold text-center transition-all"
+              className="w-full block py-2 rounded-xl text-xs font-semibold text-center transition-all"
               style={{ background: "rgba(20,184,166,0.12)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.25)" }}
               onClick={(e) => e.stopPropagation()}
             >
-              View on ClinicalTrials.gov ↗
+              View full details on ClinicalTrials.gov ↗
             </a>
-            <button
-              className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
-              style={{ background: "rgba(167,139,250,0.12)", color: "#A78BFA", border: "1px solid rgba(167,139,250,0.25)" }}
-              onClick={(e) => { e.stopPropagation(); }}
-            >
-              Ask AI About This Trial
-            </button>
           </div>
         </div>
       </div>
@@ -760,7 +762,7 @@ function ProviderMatchCard({ provider, expanded, onToggle }: { provider: Provide
 
 // ─── Real Doctor Card ─────────────────────────────────────────────────────────
 
-function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
+function RealDoctorCard({ doctor, onAskAI }: { doctor: DoctorResult; onAskAI: (doctor: DoctorResult) => void }) {
   return (
     <TiltCard active={false} borderColor="rgba(20,184,166,0.15)" bg="#1E293B">
       <div className="p-4">
@@ -796,21 +798,31 @@ function RealDoctorCard({ doctor }: { doctor: DoctorResult }) {
         </div>
         <div className="mt-3 flex gap-2">
           {doctor.website ? (
-            <a href={doctor.website} target="_blank" rel="noopener noreferrer"
+            <a
+              href={doctor.website}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
-              style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
+              style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
+            >
               View Profile ↗
             </a>
           ) : (
-            <div className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
-              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}>
+            <div
+              className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
+              style={{ background: "rgba(255,255,255,0.04)", color: "#64748B" }}
+            >
               No website
             </div>
           )}
-          <div className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center"
-            style={{ background: "rgba(96,165,250,0.1)", color: "#60A5FA", border: "1px solid rgba(96,165,250,0.2)" }}>
-            {doctor.phone}
-          </div>
+          <button
+            type="button"
+            onClick={() => onAskAI(doctor)}
+            className="flex-1 py-2 rounded-lg text-[10px] font-semibold text-center transition-all"
+            style={{ background: "rgba(96,165,250,0.1)", color: "#60A5FA", border: "1px solid rgba(96,165,250,0.2)" }}
+          >
+            Ask AI About This Doctor
+          </button>
         </div>
       </div>
     </TiltCard>
@@ -844,6 +856,16 @@ export function FindSupport() {
     return true;
   });
 
+  const handleAskAIAboutDoctor = useCallback(
+    (doctor: DoctorResult) => {
+      openBotpressChat({
+        twin,
+        question: `Is ${doctor.name} (${doctor.specialty}) at ${doctor.address} a good fit for my condition?`,
+      });
+    },
+    [twin]
+  );
+
   const searchDoctors = async (loc: string) => {
     if (!loc.trim()) return;
     setDoctorsLoading(true);
@@ -853,7 +875,12 @@ export function FindSupport() {
       const params = new URLSearchParams({
         condition: twin.intake.diagnosis.primary_condition,
         location: loc.trim(),
+        age: String(twin.intake.demographics.age),
+        sex: twin.intake.demographics.sex,
       });
+      if (twin.intake.diagnosis.stage) {
+        params.append("stage", twin.intake.diagnosis.stage);
+      }
       const res = await fetch(`/api/doctors/search?${params.toString()}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Search failed");
@@ -1053,7 +1080,7 @@ export function FindSupport() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.06, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                       >
-                        <RealDoctorCard doctor={doc} />
+                        <RealDoctorCard doctor={doc} onAskAI={handleAskAIAboutDoctor} />
                       </motion.div>
                     ))}
                   </div>

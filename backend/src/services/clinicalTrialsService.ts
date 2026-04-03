@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ClinicalTrial, TrialLocation } from "../types/trial";
+import { groqTrialFallback, isGroqReady } from "./groqService";
 
 const CT_GOV_BASE = "https://clinicaltrials.gov/api/v2/studies";
 
@@ -198,9 +199,15 @@ export async function searchClinicalTrials(
     );
 
     const studies = response.data?.studies || [];
+    if (studies.length === 0) {
+      const groqTrials = await getGroqTrials(condition, pageSize);
+      if (groqTrials.length > 0) return groqTrials;
+    }
     return studies.map(parseStudy);
   } catch (error) {
     console.error("ClinicalTrials.gov API error:", error);
+    const groqTrials = await getGroqTrials(condition, pageSize);
+    if (groqTrials.length > 0) return groqTrials;
     throw new Error(`Failed to fetch clinical trials: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
@@ -221,5 +228,16 @@ export async function getTrialById(nctId: string): Promise<ClinicalTrial | null>
   } catch (error) {
     console.error(`Error fetching trial ${nctId}:`, error);
     return null;
+  }
+}
+
+async function getGroqTrials(condition: string, pageSize: number): Promise<ClinicalTrial[]> {
+  if (!isGroqReady()) return [];
+  try {
+    const trials = await groqTrialFallback(condition, pageSize);
+    return trials ?? [];
+  } catch (err) {
+    console.error("[Trials] Groq fallback failed", err);
+    return [];
   }
 }

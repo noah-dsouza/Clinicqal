@@ -50,7 +50,7 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
             {/* Row 1: Score + Diagnosis + Body Systems side by side */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Health Score */}
-              <DarkCard title="Health Score">
+              <DarkCard title="Health Score" accent="#14B8A6">
                 <HealthScoreGauge
                   score={twin.health_score.overall}
                   size={190}
@@ -67,7 +67,7 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
               </DarkCard>
 
               {/* Diagnosis */}
-              <DarkCard title="Diagnosis">
+              <DarkCard title="Diagnosis" accent="#60A5FA">
                 <p className="text-sm font-semibold text-[#F1F5F9] mb-1">{twin.intake.diagnosis.primary_condition}</p>
                 {twin.intake.diagnosis.icd10_code && (
                   <p className="text-xs text-[#64748B] mb-2">ICD-10: {twin.intake.diagnosis.icd10_code}</p>
@@ -106,7 +106,7 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
               </DarkCard>
 
               {/* Body Systems */}
-              <DarkCard title="Body Systems">
+              <DarkCard title="Body Systems" accent="#F97316">
                 {twin.body_systems.length > 0 ? (
                   <div className="space-y-2">
                     {twin.body_systems.map((sys, i) => <SystemRow key={i} system={sys} />)}
@@ -225,16 +225,26 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-function DarkCard({ title, children }: { title: string; children: React.ReactNode }) {
+function DarkCard({ title, children, accent = "#14B8A6" }: { title: string; children: React.ReactNode; accent?: string }) {
   return (
     <motion.div
-      className="rounded-xl p-4 border"
+      className="relative rounded-2xl border overflow-hidden group"
       style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.07)" }}
-      whileHover={{ borderColor: "rgba(255,255,255,0.13)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
-      transition={{ duration: 0.2 }}
+      whileHover={{
+        borderColor: `${accent}70`,
+        boxShadow: `0 20px 45px ${accent}30`,
+        y: -2,
+      }}
+      transition={{ type: "spring", stiffness: 320, damping: 26 }}
     >
-      <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "#64748B" }}>{title}</h3>
-      {children}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-300"
+        style={{ background: `radial-gradient(circle at top, ${accent}35, transparent 65%)` }}
+      />
+      <div className="relative p-4">
+        <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "#64748B" }}>{title}</h3>
+        {children}
+      </div>
     </motion.div>
   );
 }
@@ -295,4 +305,3 @@ function SystemRow({ system }: { system: BodySystem }) {
     </div>
   );
 }
-

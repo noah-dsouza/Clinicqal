@@ -1,17 +1,11 @@
 import axios from "axios";
+import { DoctorResult } from "../types/doctor";
+import { groqDoctorFallback, isGroqReady } from "./groqService";
 
-export interface DoctorResult {
-  id: string;
-  name: string;
-  specialty: string;
-  address: string;
-  phone: string;
-  rating?: number;
-  reviews?: number;
-  website?: string;
-  accepting_patients: boolean;
-  distance?: string;
-  source: string;
+interface PatientContext {
+  age?: number;
+  sex?: string;
+  stage?: string;
 }
 
 interface SerpLocalResult {
@@ -45,13 +39,19 @@ function inferSpecialty(condition: string): string {
 
 export async function searchDoctorsNearby(
   condition: string,
-  location: string
+  location: string,
+  context?: PatientContext
 ): Promise<DoctorResult[]> {
-  const apiKey = process.env.SERPAPI_KEY;
+  const apiKey = process.env.SERPAPI_KEY ?? "";
   const specialty = inferSpecialty(condition);
+  const hasRealSerpKey =
+    apiKey.length > 0 &&
+    !apiKey.includes("your_") &&
+    (apiKey.startsWith("sk-") || apiKey.length >= 32);
 
-  if (!apiKey || !apiKey.startsWith("sk-") && apiKey.length < 20) {
-    // No valid key — return curated fallback list
+  if (!hasRealSerpKey) {
+    const groqDoctors = await getGroqDoctors(condition, location, specialty, context);
+    if (groqDoctors.length > 0) return groqDoctors;
     return getFallbackDoctors(specialty, condition);
   }
 
@@ -77,29 +77,41 @@ export async function searchDoctorsNearby(
 
     if (response.data.error) {
       console.warn("[Doctors] SerpAPI error:", response.data.error);
+      const groqDoctors = await getGroqDoctors(condition, location, specialty, context);
+      if (groqDoctors.length > 0) return groqDoctors;
       return getFallbackDoctors(specialty, condition);
     }
 
     const local = response.data.local_results ?? [];
     if (local.length === 0) {
+      const groqDoctors = await getGroqDoctors(condition, location, specialty, context);
+      if (groqDoctors.length > 0) return groqDoctors;
       return getFallbackDoctors(specialty, condition);
     }
 
-    return local.slice(0, 6).map((r, idx): DoctorResult => ({
-      id: r.place_id ?? `doc-${idx}`,
-      name: r.title ?? "Unknown Provider",
-      specialty: r.type ?? specialty,
-      address: r.address ?? location,
-      phone: r.phone ?? "Call for appointment",
-      rating: r.rating,
-      reviews: r.reviews,
-      website: r.website,
-      accepting_patients: r.hours?.current_status !== "Closed" ?? true,
-      distance: r.distance,
-      source: "google_local",
-    }));
+    return local.slice(0, 6).map((r, idx): DoctorResult => {
+      const accepting =
+        r.hours?.current_status && r.hours.current_status.length > 0
+          ? r.hours.current_status !== "Closed"
+          : true;
+      return {
+        id: r.place_id ?? `doc-${idx}`,
+        name: r.title ?? "Unknown Provider",
+        specialty: r.type ?? specialty,
+        address: r.address ?? location,
+        phone: r.phone ?? "Call for appointment",
+        rating: r.rating,
+        reviews: r.reviews,
+        website: r.website,
+        accepting_patients: accepting,
+        distance: r.distance,
+        source: "google_local",
+      };
+    });
   } catch (err) {
     console.error("[Doctors] Search failed:", err);
+    const groqDoctors = await getGroqDoctors(condition, location, specialty, context);
+    if (groqDoctors.length > 0) return groqDoctors;
     return getFallbackDoctors(specialty, condition);
   }
 }
@@ -155,4 +167,31 @@ function getFallbackDoctors(specialty: string, condition: string): DoctorResult[
       source: "demo",
     },
   ];
+}
+
+async function getGroqDoctors(condition: string, location: string, specialty: string, context?: PatientContext): Promise<DoctorResult[]> {
+  if (!isGroqReady()) return [];
+  try {
+    const doctors = await groqDoctorFallback(condition, location, specialty, context);
+    if (!doctors || doctors.length === 0) return [];
+    return doctors.map((doc, idx) => {
+      const raw = doc as Partial<DoctorResult>;
+      return {
+        id: raw.id || `groq-doc-${idx}`,
+        name: raw.name || "ClinIQ Care Partner",
+        specialty: raw.specialty || specialty,
+        address: raw.address || location,
+        phone: raw.phone || "Call clinic for details",
+        rating: raw.rating,
+        reviews: raw.reviews,
+        website: raw.website,
+        accepting_patients: raw.accepting_patients ?? true,
+        distance: raw.distance || "Near you",
+        source: "groq_llm",
+      };
+    });
+  } catch (error) {
+    console.error("[Doctors] Groq fallback failed", error);
+    return [];
+  }
 }
