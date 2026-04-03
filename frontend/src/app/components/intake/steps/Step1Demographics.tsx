@@ -7,15 +7,15 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[#111827] text-sm placeholder-[#9CA3AF] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[rgba(13,148,136,0.2)] transition-colors";
+  "w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] rounded-lg px-4 py-2.5 text-sm text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(20,184,166,0.4)] transition-colors";
 
-const labelCls = "block text-xs font-medium text-[#6B7280] mb-1.5 uppercase tracking-wide";
+const labelCls = "block text-xs font-medium text-[#94A3B8] mb-1.5 uppercase tracking-wide";
 
 export function Step1Demographics({ data, onChange }: Props) {
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#111827] mb-1">Demographics</h2>
-      <p className="text-sm text-[#9CA3AF] mb-6">
+      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Demographics</h2>
+      <p className="text-sm text-[#64748B] mb-6">
         Basic demographic information helps match you with eligible trials.
       </p>
 
@@ -115,7 +115,7 @@ export function Step1Demographics({ data, onChange }: Props) {
       {/* BMI Preview */}
       {data.weight_kg > 0 && data.height_cm > 0 && (
         <div className="mt-4 p-3 bg-[rgba(13,148,136,0.06)] rounded-lg border border-[rgba(13,148,136,0.15)]">
-          <span className="text-xs text-[#6B7280]">Calculated BMI: </span>
+          <span className="text-xs text-[#94A3B8]">Calculated BMI: </span>
           <span className="text-sm font-semibold text-[#0D9488]">
             {(data.weight_kg / Math.pow(data.height_cm / 100, 2)).toFixed(1)} kg/m²
           </span>

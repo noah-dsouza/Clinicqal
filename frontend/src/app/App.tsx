@@ -2,18 +2,27 @@ import { useState, useEffect } from "react";
 import { DigitalTwinProvider, useDigitalTwin } from "../context/DigitalTwinContext";
 import { IntakeShell } from "./components/intake/IntakeShell";
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
+import { LoginPage } from "./components/auth/LoginPage";
 
-type Screen = "intake" | "dashboard";
+type Screen = "login" | "intake" | "dashboard";
 
 function AppContent() {
   const { twin } = useDigitalTwin();
-  const [screen, setScreen] = useState<Screen>(twin ? "dashboard" : "intake");
+  const [screen, setScreen] = useState<Screen>("login");
 
-  // Whenever twin is set from anywhere (upload, intake form, session restore),
-  // automatically navigate to the dashboard.
+  // Once twin is set go to dashboard
   useEffect(() => {
     if (twin) setScreen("dashboard");
   }, [twin]);
+
+  if (screen === "login") {
+    return (
+      <LoginPage
+        onLogin={() => setScreen("intake")}
+        onGuest={() => setScreen("intake")}
+      />
+    );
+  }
 
   if (screen === "dashboard" && twin) {
     return <DashboardLayout onRetakeIntake={() => setScreen("intake")} />;

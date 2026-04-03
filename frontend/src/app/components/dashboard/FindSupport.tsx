@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { DigitalTwin } from "../../../types/digitalTwin";
 
@@ -967,13 +968,19 @@ export function FindSupport() {
                 No trials match this filter. Try "All Matches".
               </div>
             ) : (
-              filteredTrials.map((trial) => (
-                <TrialMatchCard
+              filteredTrials.map((trial, i) => (
+                <motion.div
                   key={trial.id}
-                  trial={trial}
-                  expanded={expandedTrial === trial.id}
-                  onToggle={() => setExpandedTrial(expandedTrial === trial.id ? null : trial.id)}
-                />
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                >
+                  <TrialMatchCard
+                    trial={trial}
+                    expanded={expandedTrial === trial.id}
+                    onToggle={() => setExpandedTrial(expandedTrial === trial.id ? null : trial.id)}
+                  />
+                </motion.div>
               ))
             )}
           </div>
@@ -982,13 +989,19 @@ export function FindSupport() {
         {/* Provider Cards */}
         {activeSection === "care" && (
           <div className="space-y-3">
-            {providers.map((p) => (
-              <ProviderMatchCard
+            {providers.map((p, i) => (
+              <motion.div
                 key={p.id}
-                provider={p}
-                expanded={expandedProvider === p.id}
-                onToggle={() => setExpandedProvider(expandedProvider === p.id ? null : p.id)}
-              />
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <ProviderMatchCard
+                  provider={p}
+                  expanded={expandedProvider === p.id}
+                  onToggle={() => setExpandedProvider(expandedProvider === p.id ? null : p.id)}
+                />
+              </motion.div>
             ))}
           </div>
         )}

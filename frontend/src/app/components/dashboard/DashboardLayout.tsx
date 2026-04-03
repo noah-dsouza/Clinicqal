@@ -6,10 +6,10 @@ import { VitalSignGrid } from "./VitalSignGrid";
 import { BiomarkerPanel } from "./BiomarkerPanel";
 import { TrialList } from "./TrialList";
 import { FindSupport } from "./FindSupport";
+import { AIChatButton } from "./AIChatButton";
 import { useDigitalTwin } from "../../../context/DigitalTwinContext";
 import { getEcogLabel } from "../../../lib/utils";
 import { HealthDocumentUpload } from "../shared/HealthDocumentUpload";
-import { HealthChat } from "./HealthChat";
 
 type Tab = "overview" | "trials" | "support";
 
@@ -211,7 +211,7 @@ export function DashboardLayout({ onRetakeIntake }: DashboardLayoutProps) {
         </div>
       )}
 
-      <HealthChat />
+      <AIChatButton />
     </div>
   );
 }

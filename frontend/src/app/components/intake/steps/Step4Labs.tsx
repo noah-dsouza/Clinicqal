@@ -9,7 +9,7 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#111827] text-sm placeholder-[#9CA3AF] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[rgba(13,148,136,0.2)] transition-colors";
+  "w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] rounded-lg px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(20,184,166,0.4)] transition-colors";
 
 interface CommonLab {
   name: string;
@@ -58,14 +58,14 @@ export function Step4Labs({ labs, onChange }: Props) {
 
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#111827] mb-1">Laboratory Results</h2>
-      <p className="text-sm text-[#9CA3AF] mb-6">
+      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Laboratory Results</h2>
+      <p className="text-sm text-[#64748B] mb-6">
         Enter recent lab values. Include reference ranges when available.
       </p>
 
       {/* Common Labs Quick Add */}
       <div className="mb-5">
-        <p className="text-xs text-[#9CA3AF] mb-2 uppercase tracking-wide">
+        <p className="text-xs text-[#64748B] mb-2 uppercase tracking-wide">
           Common labs (click to add)
         </p>
         <div className="flex flex-wrap gap-2">
@@ -75,7 +75,7 @@ export function Step4Labs({ labs, onChange }: Props) {
               onClick={() => {
                 if (!labs.some((l) => l.name === lab.name)) addLab(lab);
               }}
-              className="px-3 py-1.5 text-xs rounded-full border border-[#E5E7EB] text-[#6B7280] hover:border-[rgba(13,148,136,0.35)] hover:text-[#0D9488] hover:bg-[rgba(13,148,136,0.06)] transition-all"
+              className="px-3 py-1.5 text-xs rounded-full border border-[rgba(255,255,255,0.08)] text-[#94A3B8] hover:border-[rgba(13,148,136,0.35)] hover:text-[#0D9488] hover:bg-[rgba(13,148,136,0.06)] transition-all"
             >
               + {lab.name}
             </button>
@@ -88,7 +88,7 @@ export function Step4Labs({ labs, onChange }: Props) {
         {labs.map((lab, idx) => (
           <div
             key={idx}
-            className="p-3 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]"
+            className="p-3 bg-[rgba(255,255,255,0.04)] rounded-lg border border-[rgba(255,255,255,0.08)]"
           >
             <div className="grid grid-cols-12 gap-2">
               <div className="col-span-12 md:col-span-4">
@@ -183,9 +183,9 @@ export function Step4Labs({ labs, onChange }: Props) {
         ))}
 
         {labs.length === 0 && (
-          <div className="py-8 text-center border border-dashed border-[#E5E7EB] rounded-lg">
-            <p className="text-[#9CA3AF] text-sm">No lab results added yet</p>
-            <p className="text-[#6B7280] text-xs mt-1">
+          <div className="py-8 text-center border border-dashed border-[rgba(255,255,255,0.08)] rounded-lg">
+            <p className="text-[#64748B] text-sm">No lab results added yet</p>
+            <p className="text-[#94A3B8] text-xs mt-1">
               Use common labs above or add custom labs below
             </p>
           </div>

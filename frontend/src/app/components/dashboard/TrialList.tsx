@@ -65,11 +65,20 @@ export function TrialList() {
       {/* Error */}
       {error && !isLoading && (
         <div className="py-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs" style={{ background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.25)", color: "#F87171" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" /><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
-            {error}
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#FBBF24" strokeWidth="2" /><line x1="12" y1="8" x2="12" y2="12" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="#FBBF24" strokeWidth="3" strokeLinecap="round" /></svg>
           </div>
-          <button onClick={() => runSearch()} className="mt-4 px-4 py-2 text-xs text-[#14B8A6] hover:text-[#2DD4BF] transition-colors">
+          {error.includes("session_id") || error.includes("condition") ? (
+            <div className="max-w-sm mx-auto">
+              <p className="text-sm font-medium text-[#F1F5F9] mb-1">Backend API key not configured</p>
+              <p className="text-xs text-[#94A3B8] mb-3 leading-relaxed">
+                The clinical trials search requires a Claude API key in your backend <code className="text-[#14B8A6]">.env</code> file. Add your key and restart the backend server to enable live trial search.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-[#94A3B8] mb-3">{error}</p>
+          )}
+          <button onClick={() => runSearch()} className="px-4 py-2 text-xs rounded-lg transition-colors" style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
             Try again
           </button>
         </div>

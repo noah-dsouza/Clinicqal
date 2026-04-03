@@ -51,7 +51,7 @@ function OptionSelector<T extends string>({
 }) {
   return (
     <div>
-      <p className="text-xs font-medium text-[#6B7280] mb-2 uppercase tracking-wide">{label}</p>
+      <p className="text-xs font-medium text-[#94A3B8] mb-2 uppercase tracking-wide">{label}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
         {options.map((opt) => {
           const isSelected = value === opt.value;
@@ -62,8 +62,8 @@ function OptionSelector<T extends string>({
               onClick={() => onChange(opt.value)}
               className={`p-3 rounded-lg border text-left transition-all duration-150 ${
                 isSelected
-                  ? "border-current bg-white"
-                  : "border-[#E5E7EB] hover:border-[#D1D5DB] hover:bg-[#F9FAFB]"
+                  ? "border-current bg-[#1E293B]"
+                  : "border-[rgba(255,255,255,0.08)] hover:border-[#D1D5DB] hover:bg-[rgba(255,255,255,0.04)]"
               }`}
               style={
                 isSelected
@@ -80,7 +80,7 @@ function OptionSelector<T extends string>({
               >
                 {opt.label}
               </div>
-              <div className="text-xs text-[#9CA3AF] leading-tight">{opt.description}</div>
+              <div className="text-xs text-[#64748B] leading-tight">{opt.description}</div>
             </button>
           );
         })}
@@ -92,8 +92,8 @@ function OptionSelector<T extends string>({
 export function Step6Lifestyle({ lifestyle, onChange }: Props) {
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#111827] mb-1">Lifestyle Factors</h2>
-      <p className="text-sm text-[#9CA3AF] mb-6">
+      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Lifestyle Factors</h2>
+      <p className="text-sm text-[#64748B] mb-6">
         Lifestyle data affects your health score and many trial eligibility criteria.
       </p>
 
@@ -141,8 +141,8 @@ export function Step6Lifestyle({ lifestyle, onChange }: Props) {
             </svg>
           </div>
           <div>
-            <p className="text-sm font-medium text-[#111827]">You're almost ready!</p>
-            <p className="text-xs text-[#9CA3AF] mt-1">
+            <p className="text-sm font-medium text-[#F1F5F9]">You're almost ready!</p>
+            <p className="text-xs text-[#64748B] mt-1">
               Click "Build My Digital Twin" to create your personalized health profile. We'll analyze
               your data and match you with active clinical trials. This process takes a few seconds.
             </p>

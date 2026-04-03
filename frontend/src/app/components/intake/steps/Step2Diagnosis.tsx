@@ -7,9 +7,9 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[#111827] text-sm placeholder-[#9CA3AF] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[rgba(13,148,136,0.2)] transition-colors";
+  "w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] rounded-lg px-4 py-2.5 text-sm text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(20,184,166,0.4)] transition-colors";
 
-const labelCls = "block text-xs font-medium text-[#6B7280] mb-1.5 uppercase tracking-wide";
+const labelCls = "block text-xs font-medium text-[#94A3B8] mb-1.5 uppercase tracking-wide";
 
 export function Step2Diagnosis({ data, onChange }: Props) {
   const [secInput, setSecInput] = useState("");
@@ -30,8 +30,8 @@ export function Step2Diagnosis({ data, onChange }: Props) {
 
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#111827] mb-1">Diagnosis & Conditions</h2>
-      <p className="text-sm text-[#9CA3AF] mb-6">
+      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Diagnosis & Conditions</h2>
+      <p className="text-sm text-[#64748B] mb-6">
         Your diagnosis drives which clinical trials are surfaced.
       </p>
 
@@ -46,7 +46,7 @@ export function Step2Diagnosis({ data, onChange }: Props) {
             value={data.primary_condition}
             onChange={(e) => onChange({ primary_condition: e.target.value })}
           />
-          <p className="mt-1 text-xs text-[#9CA3AF]">
+          <p className="mt-1 text-xs text-[#64748B]">
             Enter your main diagnosis as diagnosed by your physician.
           </p>
         </div>
@@ -125,7 +125,7 @@ export function Step2Diagnosis({ data, onChange }: Props) {
               + Add
             </button>
           </div>
-          <p className="mt-1 text-xs text-[#9CA3AF]">Press Enter or click Add after each condition.</p>
+          <p className="mt-1 text-xs text-[#64748B]">Press Enter or click Add after each condition.</p>
 
           {data.secondary_conditions.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
