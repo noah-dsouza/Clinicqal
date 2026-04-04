@@ -232,8 +232,8 @@ function LightCard({ title, children, accent = "#2F3E34", glow = true }: { title
       className="relative rounded-2xl border overflow-hidden group"
       style={{ background: "#FFFFFF", borderColor: "rgba(47,62,52,0.1)" }}
       whileHover={{
-        borderColor: `${accent}50`,
-        boxShadow: glow ? `0 20px 50px ${accent}14, 0 0 20px ${accent}0a` : "none",
+        borderColor: "rgba(134,239,172,0.55)",
+        boxShadow: glow ? "0 20px 50px rgba(134,239,172,0.18), 0 0 20px rgba(134,239,172,0.1)" : "none",
         y: -4,
       }}
       transition={{ type: "spring", stiffness: 320, damping: 26 }}
@@ -241,7 +241,7 @@ function LightCard({ title, children, accent = "#2F3E34", glow = true }: { title
       {glow && (
         <div
           className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-60 transition-opacity duration-300"
-          style={{ background: `radial-gradient(circle at 30% 0%, ${accent}14, transparent 65%)` }}
+          style={{ background: "radial-gradient(circle at 30% 0%, rgba(134,239,172,0.18), transparent 65%)" }}
         />
       )}
       <div className="relative p-4">

@@ -7,7 +7,7 @@ import { LoginPage } from "./components/auth/LoginPage";
 type Screen = "login" | "intake" | "dashboard";
 
 function AppContent() {
-  const { twin } = useDigitalTwin();
+  const { twin, setTwin, clearTwin } = useDigitalTwin();
   const [screen, setScreen] = useState<Screen>("login");
 
   // Go to dashboard only after completing intake (not from cached session on login screen)
@@ -15,11 +15,30 @@ function AppContent() {
     if (twin && screen === "intake") setScreen("dashboard");
   }, [twin, screen]);
 
+  const handleDemo = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/demo/patient");
+      const data = await res.json();
+      if (data.twin) {
+        setTwin(data.twin);
+        setScreen("dashboard");
+      }
+    } catch (err) {
+      console.error("[Demo] Failed to load demo patient", err);
+    }
+  };
+
+  const goToIntake = () => {
+    clearTwin();
+    setScreen("intake");
+  };
+
   if (screen === "login") {
     return (
       <LoginPage
-        onLogin={() => setScreen("intake")}
-        onGuest={() => setScreen("intake")}
+        onLogin={goToIntake}
+        onGuest={goToIntake}
+        onDemo={handleDemo}
       />
     );
   }

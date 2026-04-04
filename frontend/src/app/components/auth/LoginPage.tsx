@@ -120,9 +120,10 @@ function HealthDotMap() {
 interface LoginPageProps {
   onLogin: () => void;
   onGuest: () => void;
+  onDemo: () => void;
 }
 
-export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
+export function LoginPage({ onLogin, onGuest, onDemo }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -176,7 +177,7 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                 className="text-base text-center max-w-xs leading-relaxed font-medium"
                 style={{ color: "rgba(246,243,237,0.85)" }}
               >
-                AI-powered clinical trial matching &amp; digital twin health platform.
+                AI-powered clinical trial matching &amp; bioinformatics platform.
               </motion.p>
 
               {/* Feature bullets */}
@@ -331,6 +332,14 @@ export function LoginPage({ onLogin, onGuest }: LoginPageProps) {
                   Start your health profile
                 </button>
               </p>
+              <button
+                onClick={onDemo}
+                className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 mt-3 text-xs font-semibold transition-all"
+                style={{ background: "rgba(193,132,58,0.07)", color: "#C1843A", border: "1px dashed rgba(193,132,58,0.35)" }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#C1843A" strokeWidth="2" strokeLinejoin="round"/></svg>
+                Demo mode — skip to dashboard with sample data
+              </button>
               <p className="text-center text-[10px] mt-3" style={{ color: "#B1A79F" }}>
                 For research and informational use only · Not medical advice
               </p>

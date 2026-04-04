@@ -61,12 +61,25 @@ export function HealthScoreGauge({
   const dotDeg = startDeg + sweepDeg * (score / 100);
   const { x: dotX, y: dotY } = arcCoords(dotDeg);
 
+  // Zone arc paths (background track colored by score range)
+  function zonePathD(fromFrac: number, toFrac: number) {
+    const s = startDeg + sweepDeg * fromFrac;
+    const e = startDeg + sweepDeg * toFrac;
+    const sweep = sweepDeg * (toFrac - fromFrac);
+    const { x: x1, y: y1 } = arcCoords(s);
+    const { x: x2, y: y2 } = arcCoords(e);
+    const large = sweep > 180 ? 1 : 0;
+    return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+  }
+
   return (
     <div className="flex flex-col items-center w-full">
       <div className="relative" style={{ width: size, height: size - 10 }}>
         <svg width={size} height={size - 10} viewBox={`0 0 ${size} ${size}`} overflow="visible">
-          {/* Track */}
-          <path d={trackD} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={10} strokeLinecap="round" />
+          {/* Colored zone track: red → amber → green */}
+          <path d={zonePathD(0, 0.4)} fill="none" stroke="#EF4444" strokeWidth={10} strokeLinecap="butt" opacity={0.22} />
+          <path d={zonePathD(0.4, 0.7)} fill="none" stroke="#F59E0B" strokeWidth={10} strokeLinecap="butt" opacity={0.22} />
+          <path d={zonePathD(0.7, 1)} fill="none" stroke="#22C55E" strokeWidth={10} strokeLinecap="round" opacity={0.22} />
           {/* Score arc */}
           <path
             d={scoreD} fill="none" stroke={color} strokeWidth={10} strokeLinecap="round"

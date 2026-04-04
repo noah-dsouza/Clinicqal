@@ -8,7 +8,7 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] rounded-lg px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(20,184,166,0.4)] transition-colors";
+  "w-full bg-white border border-[rgba(47,62,52,0.15)] rounded-lg px-3 py-2 text-sm text-[#2F3E34] placeholder-[#B1A79F] focus:outline-none focus:border-[rgba(107,127,106,0.5)] focus:ring-2 focus:ring-[rgba(107,127,106,0.1)] transition-colors";
 
 export function Step3Medications({ medications, onChange }: Props) {
   const addMedication = () => {
@@ -39,14 +39,14 @@ export function Step3Medications({ medications, onChange }: Props) {
 
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Current Medications</h2>
-      <p className="text-sm text-[#64748B] mb-6">
+      <h2 className="text-xl font-bold text-[#2F3E34] mb-1">Current Medications</h2>
+      <p className="text-sm text-[#8B7765] mb-6">
         List all medications you are currently taking. This is critical for eligibility screening.
       </p>
 
       {/* Quick add */}
       <div className="mb-4">
-        <p className="text-xs text-[#64748B] mb-2 uppercase tracking-wide">Common medications (click to add)</p>
+        <p className="text-xs text-[#8B7765] mb-2 uppercase tracking-wide">Common medications (click to add)</p>
         <div className="flex flex-wrap gap-2">
           {commonMedications.map((med) => (
             <button
@@ -56,7 +56,7 @@ export function Step3Medications({ medications, onChange }: Props) {
                   onChange([...medications, { name: med, dosage: "", frequency: "" }]);
                 }
               }}
-              className="px-3 py-1.5 text-xs rounded-full border border-[rgba(255,255,255,0.08)] text-[#94A3B8] hover:border-[rgba(13,148,136,0.35)] hover:text-[#0D9488] hover:bg-[rgba(13,148,136,0.06)] transition-all"
+              className="px-3 py-1.5 text-xs rounded-full border border-[rgba(47,62,52,0.12)] text-[#6B7F6A] hover:border-[rgba(107,127,106,0.4)] hover:text-[#6B7F6A] hover:bg-[rgba(107,127,106,0.08)] transition-all"
             >
               + {med}
             </button>
@@ -69,7 +69,7 @@ export function Step3Medications({ medications, onChange }: Props) {
         {medications.map((med, idx) => (
           <div
             key={idx}
-            className="p-3 bg-[rgba(255,255,255,0.04)] rounded-lg border border-[rgba(255,255,255,0.08)]"
+            className="p-3 bg-[rgba(47,62,52,0.03)] rounded-lg border border-[rgba(47,62,52,0.12)]"
           >
             <div className="grid grid-cols-12 gap-2 items-center">
               <div className="col-span-12 md:col-span-5">
@@ -119,21 +119,21 @@ export function Step3Medications({ medications, onChange }: Props) {
         ))}
 
         {medications.length === 0 && (
-          <div className="py-8 text-center border border-dashed border-[rgba(255,255,255,0.08)] rounded-lg">
-            <p className="text-[#64748B] text-sm">No medications added yet</p>
-            <p className="text-[#94A3B8] text-xs mt-1">Click below to add your first medication</p>
+          <div className="py-8 text-center border border-dashed border-[rgba(47,62,52,0.12)] rounded-lg">
+            <p className="text-[#8B7765] text-sm">No medications added yet</p>
+            <p className="text-[#6B7F6A] text-xs mt-1">Click below to add your first medication</p>
           </div>
         )}
       </div>
 
       <button
         onClick={addMedication}
-        className="mt-4 w-full py-2.5 rounded-lg border border-dashed border-[rgba(13,148,136,0.25)] text-[#0D9488] text-sm font-medium hover:bg-[rgba(13,148,136,0.06)] transition-colors"
+        className="mt-4 w-full py-2.5 rounded-lg border border-dashed border-[rgba(13,148,136,0.25)] text-[#6B7F6A] text-sm font-medium hover:bg-[rgba(107,127,106,0.08)] transition-colors"
       >
         + Add Medication
       </button>
 
-      <p className="mt-3 text-xs text-[#64748B]">
+      <p className="mt-3 text-xs text-[#8B7765]">
         If you take no medications, click Continue to skip this step.
       </p>
     </div>

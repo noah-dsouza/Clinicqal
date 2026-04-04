@@ -6,9 +6,9 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] rounded-lg px-4 py-2.5 text-sm text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(20,184,166,0.4)] transition-colors";
+  "w-full bg-white border border-[rgba(47,62,52,0.15)] rounded-lg px-4 py-2.5 text-sm text-[#2F3E34] placeholder-[#B1A79F] focus:outline-none focus:border-[rgba(107,127,106,0.5)] focus:ring-2 focus:ring-[rgba(107,127,106,0.1)] transition-colors";
 
-const labelCls = "block text-xs font-medium text-[#94A3B8] mb-1.5 uppercase tracking-wide";
+const labelCls = "block text-xs font-medium text-[#6B7F6A] mb-1.5 uppercase tracking-wide";
 
 interface VitalMeta {
   key: keyof IntakeFormData["vitals"];
@@ -92,8 +92,8 @@ function getVitalStatus(
 export function Step5Vitals({ vitals, onChange }: Props) {
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Vital Signs</h2>
-      <p className="text-sm text-[#64748B] mb-6">
+      <h2 className="text-xl font-bold text-[#2F3E34] mb-1">Vital Signs</h2>
+      <p className="text-sm text-[#8B7765] mb-6">
         Enter your most recent vital signs. Leave fields blank if not available.
       </p>
 
@@ -114,7 +114,7 @@ export function Step5Vitals({ vitals, onChange }: Props) {
               <label className={labelCls}>
                 {vital.label}
                 {vital.normalLow !== undefined && vital.normalHigh !== undefined && (
-                  <span className="ml-2 text-[#64748B] normal-case tracking-normal">
+                  <span className="ml-2 text-[#8B7765] normal-case tracking-normal">
                     (normal: {vital.normalLow}–{vital.normalHigh} {vital.unit})
                   </span>
                 )}
@@ -132,7 +132,7 @@ export function Step5Vitals({ vitals, onChange }: Props) {
                     })
                   }
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#64748B]">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8B7765]">
                   {vital.unit}
                 </span>
               </div>
@@ -154,9 +154,9 @@ export function Step5Vitals({ vitals, onChange }: Props) {
         })}
       </div>
 
-      <div className="mt-4 p-3 bg-[rgba(13,148,136,0.05)] rounded-lg border border-[rgba(13,148,136,0.12)]">
-        <p className="text-xs text-[#64748B]">
-          <span className="text-[#0D9488] font-medium">Tip:</span> Vital signs help estimate your ECOG
+      <div className="mt-4 p-3 bg-[rgba(107,127,106,0.06)] rounded-lg border border-[rgba(107,127,106,0.2)]">
+        <p className="text-xs text-[#8B7765]">
+          <span className="text-[#6B7F6A] font-medium">Tip:</span> Vital signs help estimate your ECOG
           performance status and are used to determine eligibility for many clinical trials that require
           specific cardiovascular parameters.
         </p>

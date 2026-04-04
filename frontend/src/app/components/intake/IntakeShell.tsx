@@ -48,29 +48,29 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
     <div
       className="min-h-screen flex flex-col items-center justify-start"
       style={{
-        background: "#0F172A",
+        background: "#F6F3ED",
         backgroundImage:
-          "radial-gradient(ellipse at 20% 20%, rgba(20,184,166,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(52,211,153,0.04) 0%, transparent 50%)",
+          "radial-gradient(ellipse at 20% 20%, rgba(107,127,106,0.07) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(47,62,52,0.04) 0%, transparent 50%)",
       }}
     >
       {/* Header */}
       <div className="w-full max-w-3xl px-4 pt-10 pb-6">
         <div className="flex items-center gap-2.5 mb-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.25)" }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(47,62,52,0.1)", border: "1px solid rgba(47,62,52,0.18)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M3 12l9 5 9-5" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M3 17l9 5 9-5" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#2F3E34" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 12l9 5 9-5" stroke="#2F3E34" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 17l9 5 9-5" stroke="#6B7F6A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="text-base font-bold text-[#F1F5F9]">ClinIQ</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(20,184,166,0.1)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}>
+          <span className="text-base font-bold text-[#2F3E34]">ClinIQ</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(47,62,52,0.08)", color: "#6B7F6A", border: "1px solid rgba(47,62,52,0.18)" }}>
             Patient Intake
           </span>
         </div>
 
-        <h1 className="text-2xl font-bold text-[#F1F5F9] mt-2">Build Your Health Profile</h1>
-        <p className="text-sm text-[#94A3B8] mt-1.5 leading-relaxed">
+        <h1 className="text-2xl font-bold text-[#2F3E34] mt-2">Build Your Health Profile</h1>
+        <p className="text-sm text-[#8B7765] mt-1.5 leading-relaxed">
           Complete this 6-step intake to generate your AI-powered digital twin and discover matching clinical trials.
         </p>
 
@@ -79,20 +79,20 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
           <button
             onClick={() => setShowUploadModal(true)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-all"
-            style={{ background: "rgba(52,211,153,0.08)", color: "#34D399", border: "1px solid rgba(52,211,153,0.2)" }}
+            style={{ background: "rgba(47,62,52,0.08)", color: "#6B7F6A", border: "1px solid rgba(47,62,52,0.18)" }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
             Upload health docs
           </button>
-          <span className="text-[10px] text-[#64748B]">Auto-fills with AI</span>
+          <span className="text-[10px] text-[#B1A79F]">Auto-fills with AI</span>
           <button
             onClick={loadDemoPatient}
             disabled={loadingDemo}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
-            style={{ background: "rgba(20,184,166,0.08)", color: "#14B8A6", border: "1px solid rgba(20,184,166,0.2)" }}
+            style={{ background: "rgba(47,62,52,0.06)", color: "#2F3E34", border: "1px solid rgba(47,62,52,0.15)" }}
           >
             {loadingDemo ? (
-              <span className="w-3 h-3 border border-[#14B8A6] border-t-transparent rounded-full animate-spin" />
+              <span className="w-3 h-3 border border-[#6B7F6A] border-t-transparent rounded-full animate-spin" />
             ) : (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/></svg>
             )}
@@ -114,21 +114,21 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
                     style={{
                       width: isActive ? 28 : 24,
                       height: isActive ? 28 : 24,
-                      background: isActive ? "#14B8A6" : isComplete ? "rgba(52,211,153,0.15)" : "rgba(255,255,255,0.05)",
-                      color: isActive ? "#fff" : isComplete ? "#34D399" : "#64748B",
-                      border: isActive ? "none" : isComplete ? "1px solid rgba(52,211,153,0.3)" : "1px solid rgba(255,255,255,0.1)",
-                      boxShadow: isActive ? "0 0 12px rgba(20,184,166,0.4)" : "none",
+                      background: isActive ? "#2F3E34" : isComplete ? "rgba(47,62,52,0.12)" : "rgba(47,62,52,0.05)",
+                      color: isActive ? "#fff" : isComplete ? "#6B7F6A" : "#B1A79F",
+                      border: isActive ? "none" : isComplete ? "1px solid rgba(47,62,52,0.25)" : "1px solid rgba(47,62,52,0.12)",
+                      boxShadow: isActive ? "0 0 12px rgba(47,62,52,0.25)" : "none",
                       cursor: isComplete ? "pointer" : "default",
                     }}
                   >
                     {isComplete ? (
-                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#6B7F6A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                     ) : step}
                   </button>
                   {step < 6 && (
                     <div
                       className="flex-1 h-px rounded transition-all duration-500"
-                      style={{ background: step < form.currentStep ? "#34D399" : "rgba(255,255,255,0.08)" }}
+                      style={{ background: step < form.currentStep ? "#6B7F6A" : "rgba(47,62,52,0.1)" }}
                     />
                   )}
                 </React.Fragment>
@@ -142,7 +142,7 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
                 className="text-[10px] transition-colors duration-200"
                 style={{
                   width: `${100 / 6}%`,
-                  color: step === form.currentStep ? "#14B8A6" : step < form.currentStep ? "#34D399" : "#64748B",
+                  color: step === form.currentStep ? "#2F3E34" : step < form.currentStep ? "#6B7F6A" : "#B1A79F",
                   fontWeight: step === form.currentStep ? 600 : 400,
                 }}
               >
@@ -155,7 +155,7 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
 
       {/* Card */}
       <div className="w-full max-w-3xl px-4 pb-12">
-        <div className="rounded-2xl border overflow-hidden" style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.07)" }}>
+        <div className="rounded-2xl border overflow-hidden" style={{ background: "#FFFFFF", borderColor: "rgba(47,62,52,0.1)" }}>
           <div className="p-6 md:p-8">
             {form.currentStep === 1 && <Step1Demographics data={form.formData.demographics} onChange={form.updateDemographics} />}
             {form.currentStep === 2 && <Step2Diagnosis data={form.formData.diagnosis} onChange={form.updateDiagnosis} />}
@@ -171,21 +171,21 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
             </div>
           )}
 
-          <div className="px-6 md:px-8 pb-6 md:pb-8 flex items-center justify-between border-t pt-5" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+          <div className="px-6 md:px-8 pb-6 md:pb-8 flex items-center justify-between border-t pt-5" style={{ borderColor: "rgba(47,62,52,0.08)" }}>
             <button
               onClick={form.prevStep}
               disabled={form.currentStep === 1}
               className="px-4 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-30"
-              style={{ color: "#94A3B8", border: "1px solid rgba(255,255,255,0.1)" }}
+              style={{ color: "#8B7765", border: "1px solid rgba(47,62,52,0.15)" }}
             >
               ← Back
             </button>
-            <span className="text-[10px] text-[#64748B]">Step {form.currentStep} of {form.totalSteps}</span>
+            <span className="text-[10px] text-[#B1A79F]">Step {form.currentStep} of {form.totalSteps}</span>
             {form.currentStep < form.totalSteps ? (
               <button
                 onClick={form.nextStep}
                 className="px-5 py-2 rounded-lg text-xs font-semibold transition-all"
-                style={{ background: "#14B8A6", color: "#fff", boxShadow: "0 0 14px rgba(20,184,166,0.25)" }}
+                style={{ background: "#2F3E34", color: "#fff", boxShadow: "0 0 14px rgba(47,62,52,0.2)" }}
               >
                 Continue →
               </button>
@@ -206,17 +206,17 @@ export function IntakeShell({ onComplete }: IntakeShellProps) {
       {/* Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="rounded-2xl border w-full max-w-lg relative" style={{ background: "#1E293B", borderColor: "rgba(255,255,255,0.08)" }}>
+          <div className="rounded-2xl border w-full max-w-lg relative" style={{ background: "#FFFFFF", borderColor: "rgba(47,62,52,0.12)" }}>
             <button
               onClick={() => setShowUploadModal(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors"
-              style={{ color: "#64748B" }}
+              style={{ color: "#B1A79F" }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
             </button>
             <div className="p-6">
-              <h2 className="text-base font-semibold text-[#F1F5F9] mb-1">Upload Health Document</h2>
-              <p className="text-xs text-[#94A3B8] mb-4">Upload a lab report, discharge summary, or health record to auto-fill your profile.</p>
+              <h2 className="text-base font-semibold text-[#2F3E34] mb-1">Upload Health Document</h2>
+              <p className="text-xs text-[#8B7765] mb-4">Upload a lab report, discharge summary, or health record to auto-fill your profile.</p>
               <HealthDocumentUpload onClose={() => setShowUploadModal(false)} />
             </div>
           </div>

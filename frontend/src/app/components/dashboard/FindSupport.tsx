@@ -289,10 +289,10 @@ function TiltCard({ children, active, borderColor, bg, shadow }: { children: Rea
         transformStyle: "preserve-3d",
         transformPerspective: 900,
         borderRadius: 16,
-        border: `1px solid ${borderColor}`,
+        border: `1px solid ${hovered && !active ? "rgba(134,239,172,0.55)" : borderColor}`,
         background: bg,
         boxShadow: hovered && !active
-          ? `${shadow ?? ""} 0 20px 50px rgba(107,127,106,0.14), 0 0 20px rgba(107,127,106,0.08)`.trim()
+          ? `${shadow ?? ""} 0 20px 50px rgba(134,239,172,0.18), 0 0 20px rgba(134,239,172,0.1)`.trim()
           : shadow ?? "none",
         overflow: "hidden",
         position: "relative",

@@ -7,9 +7,9 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] rounded-lg px-4 py-2.5 text-sm text-[#F1F5F9] placeholder-[#64748B] focus:outline-none focus:border-[rgba(20,184,166,0.4)] transition-colors";
+  "w-full bg-white border border-[rgba(47,62,52,0.15)] rounded-lg px-4 py-2.5 text-sm text-[#2F3E34] placeholder-[#B1A79F] focus:outline-none focus:border-[rgba(107,127,106,0.5)] focus:ring-2 focus:ring-[rgba(107,127,106,0.1)] transition-colors";
 
-const labelCls = "block text-xs font-medium text-[#94A3B8] mb-1.5 uppercase tracking-wide";
+const labelCls = "block text-xs font-medium text-[#6B7F6A] mb-1.5 uppercase tracking-wide";
 
 export function Step2Diagnosis({ data, onChange }: Props) {
   const [secInput, setSecInput] = useState("");
@@ -30,8 +30,8 @@ export function Step2Diagnosis({ data, onChange }: Props) {
 
   return (
     <div className="fade-in-up">
-      <h2 className="text-xl font-bold text-[#F1F5F9] mb-1">Diagnosis & Conditions</h2>
-      <p className="text-sm text-[#64748B] mb-6">
+      <h2 className="text-xl font-bold text-[#2F3E34] mb-1">Diagnosis & Conditions</h2>
+      <p className="text-sm text-[#8B7765] mb-6">
         Your diagnosis drives which clinical trials are surfaced.
       </p>
 
@@ -46,7 +46,7 @@ export function Step2Diagnosis({ data, onChange }: Props) {
             value={data.primary_condition}
             onChange={(e) => onChange({ primary_condition: e.target.value })}
           />
-          <p className="mt-1 text-xs text-[#64748B]">
+          <p className="mt-1 text-xs text-[#8B7765]">
             Enter your main diagnosis as diagnosed by your physician.
           </p>
         </div>
@@ -120,19 +120,19 @@ export function Step2Diagnosis({ data, onChange }: Props) {
             <button
               type="button"
               onClick={addSecondaryCondition}
-              className="px-4 py-2.5 rounded-lg bg-[rgba(13,148,136,0.1)] text-[#0D9488] border border-[rgba(13,148,136,0.2)] text-sm font-medium hover:bg-[rgba(13,148,136,0.18)] transition-colors whitespace-nowrap"
+              className="px-4 py-2.5 rounded-lg bg-[rgba(13,148,136,0.1)] text-[#6B7F6A] border border-[rgba(13,148,136,0.2)] text-sm font-medium hover:bg-[rgba(13,148,136,0.18)] transition-colors whitespace-nowrap"
             >
               + Add
             </button>
           </div>
-          <p className="mt-1 text-xs text-[#64748B]">Press Enter or click Add after each condition.</p>
+          <p className="mt-1 text-xs text-[#8B7765]">Press Enter or click Add after each condition.</p>
 
           {data.secondary_conditions.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {data.secondary_conditions.map((cond, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(13,148,136,0.08)] border border-[rgba(13,148,136,0.15)] text-[#0D9488] text-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(13,148,136,0.08)] border border-[rgba(13,148,136,0.15)] text-[#6B7F6A] text-xs"
                 >
                   {cond}
                   <button

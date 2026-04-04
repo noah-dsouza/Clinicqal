@@ -13,20 +13,20 @@ interface BodyVisualizationProps {
 const MODEL_SCALE = 65;
 
 const SYSTEM_HOTSPOTS: Record<string, [number, number, number]> = {
-  neurological:          [ 0.00,  0.72,  0.08],
-  cardiovascular:        [ 0.09,  0.32,  0.10],
-  respiratory:           [-0.09,  0.28,  0.10],
-  immune:                [ 0.07,  0.30,  0.08],
-  hepatic:               [ 0.13,  0.14,  0.09],
-  gastrointestinal:      [-0.07,  0.04,  0.10],
-  "endocrine/metabolic": [ 0.05,  0.08,  0.09],
-  endocrine:             [ 0.05,  0.08,  0.09],
-  metabolic:             [ 0.05,  0.08,  0.09],
-  renal:                 [ 0.11,  0.10, -0.04],
-  hematologic:           [ 0.16,  0.20,  0.04],
-  musculoskeletal:       [ 0.20, -0.10,  0.04],
-  reproductive:          [ 0.00, -0.24,  0.08],
-  dermatological:        [-0.18,  0.15,  0.10],
+  neurological:          [ 0.00,  0.72,  0.10],  // Head
+  cardiovascular:        [ 0.07,  0.40,  0.13],  // Heart — upper chest
+  respiratory:           [-0.16,  0.30,  0.12],  // Lungs — left chest
+  immune:                [ 0.17,  0.52,  0.09],  // Lymph nodes / thymus — upper right
+  hepatic:               [ 0.20,  0.12,  0.10],  // Liver — right upper abdomen
+  gastrointestinal:      [-0.06, -0.02,  0.14],  // Stomach / intestines — center abdomen
+  "endocrine/metabolic": [ 0.00,  0.62,  0.10],  // Thyroid — neck
+  endocrine:             [ 0.00,  0.62,  0.10],
+  metabolic:             [ 0.06,  0.05,  0.10],  // Pancreas — center
+  renal:                 [ 0.20, -0.06, -0.08],  // Kidneys — back right lower torso
+  hematologic:           [-0.20,  0.42,  0.08],  // Bone marrow / blood — left chest
+  musculoskeletal:       [ 0.28, -0.38,  0.08],  // Thigh muscle — lower limb
+  reproductive:          [ 0.00, -0.34,  0.10],  // Pelvis — lower center
+  dermatological:        [-0.26,  0.18,  0.12],  // Skin surface — left arm/side
 };
 
 const STATUS_COLOR: Record<string, string> = {
