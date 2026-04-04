@@ -13,28 +13,28 @@ interface OptionGroup<T extends string> {
 }
 
 const SMOKING_OPTIONS: OptionGroup<"never" | "former" | "current">[] = [
-  { value: "never", label: "Never Smoked", description: "No history of tobacco use", color: "#22C55E" },
-  { value: "former", label: "Former Smoker", description: "Quit more than 12 months ago", color: "#F59E0B" },
-  { value: "current", label: "Current Smoker", description: "Active tobacco use", color: "#EF4444" },
+  { value: "never", label: "Never Smoked", description: "No history of tobacco use", color: "#3D8B4E" },
+  { value: "former", label: "Former Smoker", description: "Quit more than 12 months ago", color: "#B8860B" },
+  { value: "current", label: "Current Smoker", description: "Active tobacco use", color: "#B83232" },
 ];
 
 const ALCOHOL_OPTIONS: OptionGroup<"none" | "moderate" | "heavy">[] = [
-  { value: "none", label: "None", description: "No alcohol consumption", color: "#22C55E" },
-  { value: "moderate", label: "Moderate", description: "1-2 drinks/day or <14/week", color: "#F59E0B" },
-  { value: "heavy", label: "Heavy", description: ">2 drinks/day or ≥14/week", color: "#EF4444" },
+  { value: "none", label: "None", description: "No alcohol consumption", color: "#3D8B4E" },
+  { value: "moderate", label: "Moderate", description: "1-2 drinks/day or <14/week", color: "#B8860B" },
+  { value: "heavy", label: "Heavy", description: ">2 drinks/day or ≥14/week", color: "#B83232" },
 ];
 
 const ACTIVITY_OPTIONS: OptionGroup<"sedentary" | "light" | "moderate" | "active">[] = [
-  { value: "sedentary", label: "Sedentary", description: "Little to no regular exercise", color: "#EF4444" },
-  { value: "light", label: "Light", description: "Walking, light activities 1-3x/week", color: "#F59E0B" },
-  { value: "moderate", label: "Moderate", description: "Exercise 3-5x/week, moderate intensity", color: "#0D9488" },
-  { value: "active", label: "Active", description: "Daily vigorous exercise", color: "#22C55E" },
+  { value: "sedentary", label: "Sedentary", description: "Little to no regular exercise", color: "#B83232" },
+  { value: "light", label: "Light", description: "Walking, light activities 1-3x/week", color: "#B8860B" },
+  { value: "moderate", label: "Moderate", description: "Exercise 3-5x/week, moderate intensity", color: "#3D8B4E" },
+  { value: "active", label: "Active", description: "Daily vigorous exercise", color: "#2E6B3E" },
 ];
 
 const DIET_OPTIONS: OptionGroup<"poor" | "average" | "good">[] = [
-  { value: "poor", label: "Poor", description: "Mostly processed foods, few vegetables", color: "#EF4444" },
-  { value: "average", label: "Average", description: "Mixed diet, some healthy choices", color: "#F59E0B" },
-  { value: "good", label: "Good", description: "Mostly whole foods, vegetables, balanced", color: "#22C55E" },
+  { value: "poor", label: "Poor", description: "Mostly processed foods, few vegetables", color: "#B83232" },
+  { value: "average", label: "Average", description: "Mixed diet, some healthy choices", color: "#B8860B" },
+  { value: "good", label: "Good", description: "Mostly whole foods, vegetables, balanced", color: "#3D8B4E" },
 ];
 
 function OptionSelector<T extends string>({
@@ -75,7 +75,7 @@ function OptionSelector<T extends string>({
             >
               <div
                 className="text-sm font-semibold mb-0.5"
-                style={{ color: isSelected ? opt.color : "#6B7280" }}
+                style={{ color: isSelected ? opt.color : "#4B5563" }}
               >
                 {opt.label}
               </div>

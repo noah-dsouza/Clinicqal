@@ -76,10 +76,10 @@ export function HealthScoreGauge({
     <div className="flex flex-col items-center w-full">
       <div className="relative" style={{ width: size, height: size - 10 }}>
         <svg width={size} height={size - 10} viewBox={`0 0 ${size} ${size}`} overflow="visible">
-          {/* Colored zone track: red → amber → green */}
-          <path d={zonePathD(0, 0.4)} fill="none" stroke="#EF4444" strokeWidth={10} strokeLinecap="butt" opacity={0.22} />
-          <path d={zonePathD(0.4, 0.7)} fill="none" stroke="#F59E0B" strokeWidth={10} strokeLinecap="butt" opacity={0.22} />
-          <path d={zonePathD(0.7, 1)} fill="none" stroke="#22C55E" strokeWidth={10} strokeLinecap="round" opacity={0.22} />
+          {/* Colored zone track: red → orange → green */}
+          <path d={zonePathD(0, 0.4)} fill="none" stroke="#EF4444" strokeWidth={10} strokeLinecap="butt" opacity={0.3} />
+          <path d={zonePathD(0.4, 0.7)} fill="none" stroke="#F97316" strokeWidth={10} strokeLinecap="butt" opacity={0.3} />
+          <path d={zonePathD(0.7, 1)} fill="none" stroke="#22C55E" strokeWidth={10} strokeLinecap="round" opacity={0.35} />
           {/* Score arc */}
           <path
             d={scoreD} fill="none" stroke={color} strokeWidth={10} strokeLinecap="round"

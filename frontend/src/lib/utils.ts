@@ -37,10 +37,10 @@ export function formatDate(dateStr: string): string {
   }
 }
 
-// Get color for health score
+// Get color for health score (red → orange → green)
 export function getHealthScoreColor(score: number): string {
   if (score >= 70) return "#22C55E"; // green
-  if (score >= 40) return "#F59E0B"; // amber
+  if (score >= 40) return "#F97316"; // orange
   return "#EF4444"; // red
 }
 
