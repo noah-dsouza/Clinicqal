@@ -17,9 +17,9 @@ ClinIQ builds a **digital twin** from a patient's health profile — labs, vital
 |---|---|
 | Frontend | React, TypeScript, Vite, Framer Motion, Tailwind CSS |
 | Backend | Node.js, Express, TypeScript |
-| AI | Groq (llama-3.3-70b-versatile) |
-| Trial Data | ClinicalTrials.gov API |
-| Doctor Search | NPI Registry (US) + OpenStreetMap Overpass API (international) |
+| AI | Groq & Claude|
+| Trial Data | ClinicalTrials.gov API and Webscraping |
+| Doctor Search | NPI Registry (US) + OpenStreetMap Overpass API (international) & webscraping |
 
 ## Getting started
 
